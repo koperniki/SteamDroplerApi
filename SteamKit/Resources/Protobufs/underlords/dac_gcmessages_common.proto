@@ -1,0 +1,377 @@
+import "steammessages.proto";
+import "econ_gcmessages.proto";
+
+option optimize_for = SPEED;
+option cc_generic_services = false;
+
+enum EGCDACCommonMessages {
+	k_EMsgAnyToGCReportAsserts = 7000;
+	k_EMsgAnyToGCReportAssertsResponse = 7001;
+	k_EMsgGCItemEditorReservationsRequest = 7283;
+	k_EMsgGCItemEditorReservationsResponse = 7284;
+	k_EMsgGCItemEditorReserveItemDef = 7285;
+	k_EMsgGCItemEditorReserveItemDefResponse = 7286;
+	k_EMsgGCItemEditorReleaseReservation = 7287;
+	k_EMsgGCItemEditorReleaseReservationResponse = 7288;
+}
+
+enum EDACStoreID {
+	k_EDACStoreID_Invalid = 0;
+	k_EDACStoreID_iOS = 1;
+	k_EDACStoreID_GooglePlay = 2;
+	k_EDACStoreID_SteamOverlay = 3;
+	k_EDACStoreID_Test = 4;
+}
+
+enum EDACRegionMode {
+	k_EDACRegionMode_ROW = 0;
+	k_EDACRegionMode_China = 1;
+}
+
+enum EDACMatchMode {
+	k_EDACMatchMode_Invalid = 0;
+	k_EDACMatchMode_Casual = 1;
+	k_EDACMatchMode_PrivateLobby = 2;
+	k_EDACMatchMode_SoloBot = 3;
+	k_EDACMatchMode_Ranked = 4;
+}
+
+enum EDACGameMode {
+	k_EDACGameMode_Invalid = 0;
+	k_EDACGameMode_Normal = 1;
+	k_EDACGameMode_Turbo = 2;
+	k_EDACGameMode_Duos = 3;
+	k_EDACGameMode_TechPrototypeA = 4;
+	k_EDACGameMode_Sandbox = 5;
+	k_EDACGameMode_Puzzle = 6;
+	k_EDACGameMode_Tutorial = 7;
+	k_EDACGameMode_Streetfight = 8;
+	k_EDACGameMode_Classic = 11;
+}
+
+enum EDACLobbyTeam {
+	k_EDACLobbyTeam_Team0 = 0;
+	k_EDACLobbyTeam_Team1 = 1;
+	k_EDACLobbyTeam_Team2 = 2;
+	k_EDACLobbyTeam_Team3 = 3;
+	k_EDACLobbyTeam_Team4 = 4;
+	k_EDACLobbyTeam_Team5 = 5;
+	k_EDACLobbyTeam_Team6 = 6;
+	k_EDACLobbyTeam_Team7 = 7;
+	k_EDACLobbyTeam_Spectator = 250;
+}
+
+enum EDACBotDifficulty {
+	k_EDACBotDifficulty_None = 0;
+	k_EDACBotDifficulty_Easy = 1;
+	k_EDACBotDifficulty_Medium = 2;
+	k_EDACBotDifficulty_Hard = 3;
+	k_EDACBotDifficulty_Nightmare = 4;
+	k_EDACBotDifficulty_ML = 5;
+	k_EDACBotDifficulty_MommaEeb = 6;
+}
+
+enum EDACAIType {
+	k_EDACAIType_Invalid = 0;
+	k_EDACAIType_Lvl1 = 1;
+	k_EDACAIType_Lvl2 = 2;
+	k_EDACAIType_Lvl3 = 3;
+	k_EDACAIType_Lvl4 = 4;
+	k_EDACAIType_Lvl5 = 5;
+	k_EDACAIType_Lvl6 = 6;
+	k_EDACAIType_Lvl7 = 7;
+	k_EDACAIType_Lvl8 = 8;
+	k_EDACAIType_ML = 19;
+	k_EDACAIType_PB0 = 20;
+	k_EDACAIType_PB1 = 21;
+	k_EDACAIType_PB2 = 22;
+	k_EDACAIType_PB3 = 23;
+	k_EDACAIType_PB4 = 24;
+	k_EDACAIType_PB5 = 25;
+	k_EDACAIType_PB6 = 26;
+	k_EDACAIType_PB7 = 27;
+	k_EDACAIType_PB8 = 28;
+	k_EDACAIType_PB9 = 29;
+	k_EDACAIType_PB10 = 30;
+	k_EDACAIType_PB11 = 31;
+	k_EDACAIType_PB12 = 32;
+	k_EDACAIType_PB13 = 33;
+	k_EDACAIType_PB14 = 34;
+	k_EDACAIType_PB15 = 35;
+	k_EDACAIType_PB16 = 36;
+	k_EDACAIType_PB17 = 37;
+	k_EDACAIType_PB18 = 38;
+	k_EDACAIType_PB19 = 39;
+	k_EDACAIType_PB20 = 40;
+	k_EDACAIType_PB21 = 41;
+	k_EDACAIType_PB22 = 42;
+	k_EDACAIType_PB23 = 43;
+	k_EDACAIType_PB24 = 44;
+	k_EDACAIType_PB25 = 45;
+	k_EDACAIType_PB26 = 46;
+	k_EDACAIType_PB27 = 47;
+	k_EDACAIType_PB28 = 48;
+	k_EDACAIType_PB29 = 49;
+	k_EDACAIType_PB30 = 50;
+	k_EDACAIType_PB31 = 51;
+	k_EDACAIType_PB32 = 52;
+	k_EDACAIType_PB33 = 53;
+	k_EDACAIType_PB34 = 54;
+	k_EDACAIType_PB35 = 55;
+}
+
+enum EDACMatchState {
+	k_EMatchState_InProgress = 0;
+	k_EMatchState_Completed = 1;
+	k_EMatchState_Failed_NetworkIssues = 2;
+	k_EMatchState_Failed_ServerCrash = 3;
+}
+
+enum EDACPlayerState {
+	k_EPlayerState_Playing = 0;
+	k_EPlayerState_Eliminated = 1;
+	k_EPlayerState_Abandoned = 2;
+	k_EPlayerState_Disconnected = 3;
+	k_EPlayerState_ServerCrashed = 4;
+}
+
+enum ELobbyServerState {
+	k_eLobbyServerState_Assign = 0;
+	k_eLobbyServerState_InGame = 1;
+	k_eLobbyServerState_PostMatch = 2;
+	k_eLobbyServerState_SignedOut = 3;
+	k_eLobbyServerState_Abandoned = 4;
+}
+
+message CMsgGameModifiers {
+}
+
+message CMsgTeamInfo {
+	repeated uint32 member_account_ids = 1 [packed = true];
+	optional string team_name = 2;
+	optional uint32 mmr_level_score = 3;
+	optional uint32 mmr_level = 4;
+	optional uint32 mmr_leaderboard_place = 5;
+}
+
+message CServerLobbyData_PlayerInfo {
+	message LoadoutSlot {
+		optional uint32 loadout_slot = 1;
+		optional uint32 def_index = 2;
+		optional uint32 loadout_sub_slot = 3;
+	}
+
+	message Currency {
+		optional uint32 currency_id = 1;
+		optional uint32 amount = 2;
+	}
+
+	message Challenge {
+		optional uint32 challenge_id = 1;
+		optional uint32 progress = 2;
+		optional uint32 sequence_id = 3;
+		optional uint32 slot_id = 4;
+		optional uint32 config_id = 5;
+		optional uint32 claimed = 6;
+	}
+
+	message VirtualItem {
+		optional uint32 def_index = 1;
+		optional uint32 equip_slot = 2;
+		optional uint32 equip_sub_slot = 3;
+	}
+
+	message Event {
+		optional uint32 event_id = 1;
+		optional bool event_owned = 2;
+		repeated .CServerLobbyData_PlayerInfo.Challenge challenges = 3;
+		repeated .CServerLobbyData_PlayerInfo.Currency currencies = 4;
+		repeated .CServerLobbyData_PlayerInfo.VirtualItem virtual_items = 5;
+	}
+
+	optional uint32 account_id = 1;
+	optional uint32 mmr_level = 2;
+	repeated .CServerLobbyData_PlayerInfo.LoadoutSlot loadout = 3;
+	repeated .CServerLobbyData_PlayerInfo.Event events = 4;
+	optional uint32 global_leaderboard_rank = 5;
+}
+
+message CMsgRegionPingTimesClient {
+	repeated fixed32 data_center_codes = 1 [packed = true];
+	repeated uint32 ping_times = 2 [packed = true];
+}
+
+message CSODACLobby {
+	optional uint32 server_version = 1;
+	optional uint32 compatibility_version = 2;
+	optional fixed64 server_steam_id = 3;
+	optional bool dev_ignore_staging_files = 4;
+	optional uint64 lobby_id = 5;
+	optional uint64 match_id = 6;
+	optional .ELobbyServerState server_state = 8 [default = k_eLobbyServerState_Assign];
+	optional .EDACMatchMode match_mode = 10 [default = k_EDACMatchMode_Invalid];
+	optional uint32 udp_connect_ip = 11;
+	optional uint32 udp_connect_port = 12;
+	optional .EDACGameMode game_mode = 13 [default = k_EDACGameMode_Invalid];
+}
+
+message CSODACParty {
+	message Member {
+		optional uint32 account_id = 1;
+		optional string persona_name = 2;
+		optional uint32 rights_flags = 3;
+		optional bool is_ready = 4;
+		optional .CSODACParty.EPlayerType player_type = 5 [default = k_ePlayerType_Player];
+		optional uint32 compatibility_version = 6;
+		optional .EDACPlatform platform = 7 [default = k_eDACPlatform_None];
+		optional uint32 team = 8;
+	}
+
+	message LeftMember {
+		optional uint32 account_id = 1;
+		optional uint32 rights_flags = 2;
+		optional .CSODACParty.EPlayerType player_type = 3 [default = k_ePlayerType_Player];
+	}
+
+	message Invite {
+		optional uint32 account_id = 1;
+		optional string persona_name = 2;
+		optional uint32 invited_by = 3;
+	}
+
+	message TeamInfo {
+		repeated uint32 account_ids = 1 [packed = true];
+		optional string team_name = 2;
+		optional uint32 first_played = 3;
+		optional uint32 games_played = 4;
+		optional uint32 num_first_place = 6;
+		optional uint32 num_top_three = 7;
+		optional uint32 mmr_level = 8;
+		optional uint32 mmr_level_progress = 9;
+		optional uint32 mmr_level_score = 10;
+		optional uint32 flags = 11;
+		optional uint32 leaderboard_place = 12;
+		optional uint32 games_to_unlock_rename = 13;
+	}
+
+	enum EMemberRights {
+		k_eMemberRights_Admin = 1;
+		k_eMemberRights_Creator = 2;
+		k_eMemberRights_RankedMM = 4;
+		k_eMemberRights_HighRankedMM = 8;
+	}
+
+	enum EPlayerType {
+		k_ePlayerType_Player = 0;
+		k_ePlayerType_Spectator = 1;
+	}
+
+	enum ETeamFlags {
+		k_eTeamFlags_CanRename = 1;
+		k_eTeamFlags_RenameCooldown = 2;
+	}
+
+	optional uint64 party_id = 1;
+	repeated .CSODACParty.Member members = 2;
+	repeated .CSODACParty.Invite invites = 3;
+	optional bool in_match_making = 5;
+	optional string party_password = 6;
+	repeated .CSODACParty.LeftMember left_members = 10;
+	optional uint64 join_code = 11;
+	optional .EDACBotDifficulty bot_difficulty = 12 [default = k_EDACBotDifficulty_None];
+	optional bool use_custom_modifier = 13;
+	optional .CMsgGameModifiers custom_modifier = 14;
+	repeated .CSODACParty.TeamInfo teams = 15;
+}
+
+message CSOAccountSyncStorage {
+	optional uint32 account_id = 1;
+	optional uint32 id = 2;
+	optional uint32 value = 3;
+}
+
+message CSOGameAccountClient {
+	optional uint32 account_id = 1 [(key_field) = true];
+	optional uint32 mmr_level = 2;
+	optional uint32 mmr_leaderboard = 3;
+	optional uint64 flags = 4;
+	optional uint32 unlock_ranked_progress = 5;
+	optional float mmr_level_partial_progress = 6;
+	optional uint32 mmr_level_score = 8;
+	optional uint32 mm_ban_time_stamp = 9;
+	optional uint32 mm_ban_reason = 10;
+	optional uint32 mm_ranked_ban_time_stamp = 11;
+	optional uint32 mm_ranked_ban_reason = 12;
+	optional uint32 credits = 13;
+	optional uint32 turbo_mmr_level = 14;
+	optional uint32 turbo_mmr_leaderboard = 15;
+	optional float turbo_mmr_level_partial_progress = 16;
+	optional uint32 turbo_mmr_level_score = 17;
+	optional uint32 wins_1st = 18;
+	optional uint32 wins_2nd = 19;
+	optional uint32 wins_3rd = 20;
+}
+
+message CMsgStreetfightSettings {
+	optional uint32 underlord_id = 1;
+	optional uint32 streetfight_id = 2;
+	repeated uint32 item_ids_for_player = 3;
+	optional uint32 prestige_level = 4;
+}
+
+message CMsgGameModeSettings {
+	oneof settings {
+		uint32 puzzle_id = 1;
+		uint32 tutorial_phase = 2;
+		string sandbox_share_code = 3;
+		.CMsgStreetfightSettings streetfight_settings = 4;
+	}
+}
+
+message CMsgStartFindingMatchInfo {
+	optional uint32 client_version = 2;
+	optional .EDACMatchMode match_mode = 3 [default = k_EDACMatchMode_Invalid];
+	optional .EDACPlatform platform = 4 [default = k_eDACPlatform_None];
+	optional .EDACBotDifficulty bot_difficulty = 5 [default = k_EDACBotDifficulty_None];
+	optional .EDACGameMode game_mode = 6 [default = k_EDACGameMode_Invalid];
+	optional .EDACRegionMode region_mode = 8 [default = k_EDACRegionMode_ROW];
+	optional .CMsgGameModeSettings game_mode_settings = 9;
+}
+
+message CMsgAnyToGCReportAsserts {
+	message TrackedAssert {
+		optional string filename = 1;
+		optional uint32 line_number = 2;
+		optional string sample_msg = 3;
+		optional string sample_stack = 4;
+		optional uint32 times_fired = 5;
+		optional string function_name = 6;
+		optional string condition = 7;
+	}
+
+	optional uint32 version = 1;
+	repeated .CMsgAnyToGCReportAsserts.TrackedAssert asserts = 2;
+}
+
+message CMsgAnyToGCReportAssertsResponse {
+	optional bool success = 1;
+}
+
+message CMsgHistogram {
+	message HistogramBucket {
+		optional uint32 value = 1;
+		optional uint32 count = 2;
+	}
+
+	repeated .CMsgHistogram.HistogramBucket histogram_buckets = 1;
+}
+
+message CMsgPuzzleLeaderboardHistogram {
+	optional uint32 puzzle_id = 1;
+	optional uint32 leaderboard_type = 2;
+	optional .CMsgHistogram histogram = 3;
+}
+
+message CMsgPuzzleLeaderboardHistogramList {
+	repeated .CMsgPuzzleLeaderboardHistogram leaderboard_histograms = 1;
+}
