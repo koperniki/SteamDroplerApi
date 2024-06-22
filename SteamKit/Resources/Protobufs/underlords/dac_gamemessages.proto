@@ -1,0 +1,1376 @@
+import "steammessages.proto";
+import "dac_gcmessages_common.proto";
+import "usermessages.proto";
+
+option optimize_for = SPEED;
+option cc_generic_services = false;
+
+enum EDACGameMessages {
+	k_EMsgNetBufferContents = 2;
+	k_EMsgClientConnectionStarted = 3;
+	k_EMsgClientConnectionComplete = 4;
+	k_EMsgClientSetDebugNetBuffer = 5;
+	k_EMsgPlayerOrder = 6;
+	k_EMsgGameReplayActionMarker = 7;
+	k_EMsgPlayerCombinedHero = 8;
+	k_EMsgPlayerCombatResult = 9;
+	k_EMsgPlayerWinStreak = 10;
+	k_EMsgNetBufferRemoved = 11;
+	k_EMsgClientToServerChatMsg = 12;
+	k_EMsgServerToClientChatMsg = 13;
+	k_EMsgPlayerEliminated = 14;
+	k_EMsgRecordLocalBotStats = 15;
+	k_EMsgPlayerOrderProcessed = 16;
+	k_EMsgPlayerAcquiredItem = 18;
+	k_EMsgPlayerLevelUp = 19;
+	k_EMsgClientToServerUpvoteNotification = 20;
+	k_EMsgServerToClientNotificationChanged = 21;
+	k_EMsgItemChangedOwner = 22;
+	k_EMsgLocalPlayerInventory = 23;
+	k_eMsgIndividualPostMatchStats = 24;
+	k_EMsgPlayerPreferences = 25;
+	k_EMsgPlayerStateUpdatesComplete = 26;
+	k_EMsgClientToServerTeammateDuosMessage = 27;
+	k_EMsgServerToClientTeammateDuosMessage = 28;
+	k_EMsgPlayerSelectedTalent = 29;
+	k_EMsgPlayerRecievedUnitFromDuosPartner = 30;
+	k_EMsgClientToServerLoadShareCode = 31;
+	k_EMsgPlayerBoardBuddyCommand = 33;
+	k_EMsgPlayerMapPropCommand = 34;
+	k_EMsgPlayerLoadPuzzleLeaderboardCommand = 35;
+	k_EMsgClientToServerClickMsg = 36;
+	k_EMsgServerToClientClickMsg = 37;
+	k_EMsgPlayerChallengeCompletePrediction = 38;
+}
+
+enum EDACDisconnectReason {
+	k_EDACDisconnectReason_UserLeaveMatch = 1001;
+	k_EDACDisconnectReason_UserQuitApp = 1002;
+	k_EDACDisconnectReason_UserCancel = 1003;
+	k_EDACDisconnectReason_Goodbye = 1004;
+	k_EDACDisconnectReason_BadMessage = 2001;
+	k_EDACDisconnectReason_GameDestroyedUnexpectedly = 2002;
+	k_EDACDisconnectReason_ChangingServer = 2003;
+	k_EDACDisconnectReason_OldConnection = 2004;
+	k_EDACDisconnectReason_GoodbyeUnrecognizedGame = 2005;
+}
+
+enum EGameState {
+	EGameState_Intro = 0;
+	EGameState_Playing = 1;
+	EGameState_GameOver = 2;
+}
+
+enum ERoundState {
+	ERoundState_Preparing = 0;
+	ERoundState_Ready = 1;
+	ERoundState_Combat = 2;
+	ERoundState_RoundOver = 3;
+}
+
+enum EUnitKeyword {
+	EUnitKeyword_Invalid = 0;
+	EUnitKeyword_Beast = 1;
+	EUnitKeyword_Demon = 2;
+	EUnitKeyword_Dragon = 3;
+	EUnitKeyword_Dwarf = 4;
+	EUnitKeyword_Element = 5;
+	EUnitKeyword_Elf = 6;
+	EUnitKeyword_Goblin = 7;
+	EUnitKeyword_Human = 8;
+	EUnitKeyword_Naga = 9;
+	EUnitKeyword_Ogre = 10;
+	EUnitKeyword_Orc = 11;
+	EUnitKeyword_Troll = 12;
+	EUnitKeyword_Undead = 13;
+	EUnitKeyword_Satyr = 14;
+	EUnitKeyword_Assassin = 15;
+	EUnitKeyword_DemonHunter = 16;
+	EUnitKeyword_Druid = 17;
+	EUnitKeyword_Hunter = 18;
+	EUnitKeyword_Knight = 19;
+	EUnitKeyword_Mage = 20;
+	EUnitKeyword_Mech = 21;
+	EUnitKeyword_Shaman = 22;
+	EUnitKeyword_Warlock = 23;
+	EUnitKeyword_Warrior = 24;
+	EUnitKEyword_MegaWarrior = 25;
+	EUnitKeyword_MegaAssassin = 26;
+	EUnitKeyword_MegaBloodbound = 27;
+	EUnitKeyword_MegaElusive = 28;
+	EUnitKeyword_MegaWarlock = 29;
+	EUnitKeyword_MegaScaled = 30;
+	EUnitKeyword_MegaTroll = 31;
+	EUnitKeyword_MegaDemon = 32;
+	EUnitKeyword_Primordial = 33;
+	EUnitKeyword_Brawny = 34;
+	EUnitKeyword_Savage = 35;
+	EUnitKeyword_Inventor = 36;
+	EUnitKeyword_Insect = 37;
+	EUnitKeyword_Spectral = 38;
+	EUnitKeyword_Summoner = 39;
+	EUnitKeyword_SpiritBrother = 40;
+	EUnitKeyword_Meepo = 41;
+	EUnitKeyword_Brawler = 43;
+	EUnitKeyword_Guardian = 46;
+	EUnitKeyword_Champion = 50;
+	EUnitKeyword_Wisp = 51;
+	EUnitKeyword_Brutal = 52;
+	EUnitKeyword_Healer = 53;
+	EUnitKeyword_Vigilant = 54;
+	EUnitKeyword_Void = 55;
+	EUnitKeyword_Fallen = 42;
+	EUnitKeyword_Wild = 44;
+	EUnitKeyword_Swordsman = 45;
+	EUnitKeyword_Rogue = 47;
+	EUnitKeyword_Poisoner = 48;
+	EUnitKeyword_Magus = 49;
+}
+
+enum ESynergyType {
+	ESynergyType_Class = 1;
+	ESynergyType_Race = 2;
+}
+
+enum EDACItemType {
+	EDACItemType_Invalid = -1;
+	EDACItemType_Global = 0;
+	EDACItemType_Equipment_Offensive = 1;
+	EDACItemType_Equipment_Defensive = 2;
+	EDACItemType_Equipment_Support = 3;
+	EDACItemType_Placeable = 5;
+	EDACItemType_Equipment_Hat = 9;
+}
+
+enum EPlayerConnectionState {
+	EPlayerConnectionState_Connecting = 0;
+	EPlayerConnectionState_Connected = 1;
+	EPlayerConnectionState_Disconnected = 2;
+}
+
+enum ESendDestination {
+	ESendDestination_Duos_Partner = 0;
+}
+
+enum EPlayerOrder {
+	EPlayerOrder_SellUnit = 2;
+	EPlayerOrder_MoveUnit = 3;
+	EPlayerOrder_BuyXP = 4;
+	EPlayerOrder_ReRoll = 5;
+	EPlayerOrder_LockShop = 6;
+	EPlayerOrder_AssignEquipmentItem = 7;
+	EPlayerOrder_SelectItemRewardChoice = 8;
+	EPlayerOrder_DevGold = 9;
+	EPlayerOrder_DevItem = 10;
+	EPlayerOrder_DevHero = 12;
+	EPlayerOrder_BuyAndCombine = 15;
+	EPlayerOrder_PauseGame = 16;
+	EPlayerOrder_ResumeGame = 17;
+	EPlayerOrder_SpectatePlayer = 18;
+	EPlayerOrder_RequestPlayerStats = 19;
+	EPlayerOrder_StepForward = 20;
+	EPlayerOrder_MutePlayer = 21;
+	EPlayerOrder_SelectTalent = 22;
+	EPlayerOrder_Send = 23;
+	EPlayerOrder_CombineItem = 24;
+	EPlayerOrder_BuyCombineMove = 25;
+	EPlayerOrder_BuyAndSend = 26;
+	EPlayerOrder_SendGold = 27;
+	EPlayerOrder_DevTalent = 28;
+	EPlayerOrder_SellItem = 29;
+	EPlayerOrder_DevSetPlayerLevel = 30;
+	EPlayerOrder_DevGiveUnderlord = 32;
+	EPlayerOrder_DevSetAutosavingEnabled = 33;
+	EPlayerOrder_DevRemoveAllUnits = 34;
+	EPlayerOrder_DevSetUnitRank = 35;
+	EPlayerOrder_DevRemoveAllItems = 36;
+	EPlayerOrder_ClearBoard = 37;
+	EPlayerOrder_GoToTutorialState = 38;
+	EPlayerOrder_SelectTurboBucket = 39;
+	EPlayerOrder_TurboBucketReroll = 40;
+	EPlayerOrder_SelectUnderlord = 41;
+	EPlayerOrder_DevMakeTestBot = 42;
+	EPlayerOrder_ItemRewardChoiceReroll = 43;
+	EPlayerOrder_BuyPuzzleUnit = 44;
+	EPlayerOrder_Dungeon_AdvancePhase = 45;
+}
+
+enum ERoundCombatResult {
+	ERoundCombatResult_Draw = 0;
+	ERoundCombatResult_HomeWin = 1;
+	ERoundCombatResult_AwayWin = 2;
+}
+
+enum EDamageSourceType {
+	k_EDamageSourceType_Round = 0;
+	k_EDamageSourceType_Unit = 1;
+	k_EDamageSourceType_Item = 2;
+	k_EDamageSourceType_DuosNetDamage = 3;
+}
+
+enum ERoundVictoryLevel {
+	ERoundVictoryLevel_HomeDecisive = 0;
+	ERoundVictoryLevel_HomeNarrow = 1;
+	ERoundVictoryLevel_HomeFlawless = 2;
+	ERoundVictoryLevel_HomeNormal = 3;
+	ERoundVictoryLevel_AwayDecisive = 4;
+	ERoundVictoryLevel_AwayNarrow = 5;
+	ERoundVictoryLevel_AwayFlawless = 6;
+	ERoundVictoryLevel_AwayNormal = 7;
+	ERoundVictoryLevel_Draw = 8;
+}
+
+enum EDACPuzzleRule {
+	k_EDACPuzzleRule_None = 0;
+	k_EDACPuzzleRule_UnitCountLimit = 1;
+	k_EDACPuzzleRule_UnitStarLimit = 2;
+	k_EDACPuzzleRule_BoardCostLimit = 3;
+	k_EDACPuzzleRule_ItemCountLimit = 4;
+	k_EDACPuzzleRule_ValidBoardPositions = 5;
+	k_EDACPuzzleRule_MaxCombatDuration = 6;
+	k_EDACPuzzleRule_UnitCopyLimit = 7;
+	k_EDACPuzzleRule_Custom1 = 100;
+	k_EDACPuzzleRule_Custom2 = 101;
+	k_EDACPuzzleRule_Custom3 = 102;
+	k_EDACPuzzleRule_Custom4 = 103;
+	k_EDACPuzzleRule_AllianceAllowed1 = 110;
+	k_EDACPuzzleRule_AllianceAllowed2 = 111;
+	k_EDACPuzzleRule_AllianceAllowed3 = 112;
+	k_EDACPuzzleRule_AllianceAllowed4 = 113;
+	k_EDACPuzzleRule_AllianceDisllowed1 = 120;
+	k_EDACPuzzleRule_AllianceDisllowed2 = 121;
+	k_EDACPuzzleRule_AllianceDisllowed3 = 122;
+	k_EDACPuzzleRule_AllianceDisllowed4 = 123;
+	k_EDACPuzzleRule_UnitAllowed1 = 130;
+	k_EDACPuzzleRule_UnitAllowed2 = 131;
+	k_EDACPuzzleRule_UnitAllowed3 = 132;
+	k_EDACPuzzleRule_UnitAllowed4 = 133;
+	k_EDACPuzzleRule_UnitDisallowed1 = 140;
+	k_EDACPuzzleRule_UnitDisallowed2 = 141;
+	k_EDACPuzzleRule_UnitDisallowed3 = 142;
+	k_EDACPuzzleRule_UnitDisallowed4 = 143;
+}
+
+enum EDACDungeonRoomType {
+	k_EDACDungeonRoomType_None = 0;
+	k_EDACDungeonRoomType_Shop = 1;
+	k_EDACDungeonRoomType_Mystery = 2;
+	k_EDACDungeonRoomType_MiniGame = 3;
+	k_EDACDungeonRoomType_StandardCombat = 4;
+	k_EDACDungeonRoomType_MiniBoss = 5;
+	k_EDACDungeonRoomType_Boss = 6;
+}
+
+enum EDACDungeonPhase {
+	k_EDACDungeonPhase_None = 0;
+	k_EDACDungeonPhase_Intro_ChoosingUnderlord = 1;
+	k_EDACDungeonPhase_Intro_ChoosingFirstUnit = 2;
+	k_EDACDungeonPhase_Room_Setup = 3;
+	k_EDACDungeonPhase_Room_Main = 4;
+	k_EDACDungeonPhase_Room_Post_Rewards = 5;
+	k_EDACDungeonPhase_Room_Post_ChooseNextRoom = 6;
+	k_EDACDungeonPhase_Victory = 7;
+	k_EDACDungeonPhase_Defeat = 8;
+}
+
+enum EUnitAIState {
+	EUnitAIState_Idle = 0;
+	EUnitAIState_MoveToAttack = 1;
+	EUnitAIState_MoveToLocation = 2;
+	EUnitAIState_Attack = 3;
+	EUnitAIState_CastAbility = 4;
+	EUnitAIState_Dead = 5;
+	EUnitAIState_Portrait = 6;
+	EUnitAIState_WalkBack = 7;
+	EUnitAIState_Celebrate = 8;
+	EUnitAIState_RoundEndTeleport = 9;
+	EUnitAIState_Resurrecting = 10;
+	EUnitAIState_WalkThroughGate = 11;
+	EUnitAIState_MoveInFear = 12;
+}
+
+enum EDACIncidentType {
+	EDACIncidentType_None = 0;
+	EDACIncidentType_DamagePhysical = 1;
+	EDACIncidentType_DamageMagical = 2;
+	EDACIncidentType_DamagePure = 3;
+	EDACIncidentType_Died = 4;
+	EDACIncidentType_Heal = 5;
+}
+
+enum EDACNetBuffer {
+	k_eDACNetBuffer_MatchState = 0;
+	k_eDACNetBuffer_RoundCombat = 1;
+	k_eDACNetBuffer_PublicPlayerState = 2;
+	k_eDACNetBuffer_PrivatePlayerState = 3;
+	k_eDACNetBuffer_Debug = 4;
+	k_eDACNetBuffer_ModifierName = 5;
+	k_eDACNetBuffer_IndividualPostMatchStats = 6;
+	k_eDACNetBuffer_PublicPostMatchStats = 7;
+	k_eDACNetBuffer_GameModeState = 8;
+	k_eDACNetBuffer_RoundCombatGlobal = 9;
+}
+
+enum EInGameChatType {
+	k_eInGameChatType_Global = 0;
+	k_eInGameChatType_Combat = 1;
+}
+
+enum EClickType {
+	k_eClickType_Left = 0;
+	k_eClickType_Right = 1;
+}
+
+enum EMapPropCommand {
+	k_eMapPropCommand_None = 0;
+	k_eMapPropCommand_Click = 1;
+}
+
+enum EDuosMessageType {
+	k_eDuosMessageType_None = 0;
+	k_eDuosMessageType_IWant = 1001;
+	k_eDuosMessageType_DoYouWant = 1002;
+	k_eDuosMessageType_YesWant = 1003;
+	k_eDuosMessageType_NoWant = 1004;
+	k_eDuosMessageType_FreeYourBenchFor = 1005;
+	k_eDuosMessageType_Thanks = 1006;
+	k_eDuosMessageType_Sent1Gold = 1007;
+	k_eDuosMessageType_Sent5Gold = 1008;
+	k_eDuosMessageType_INoLongerWant = 1009;
+	k_eDuosMessageType_WantGold = 1010;
+	k_eDuosMessageType_LevelUpQuestion = 1011;
+	k_eDuosMessageType_SpendRerollQuestion = 1012;
+}
+
+enum EDuosMessageTargetType {
+	k_eDuosMessageTargetType_None = 0;
+	k_eDuosMessageTargetType_Unit = 1;
+	k_eDuosMessageTargetType_Synergy = 2;
+	k_eDuosMessageTargetType_Gold = 3;
+}
+
+enum EBoardBuddyCommand {
+	k_eBoardBuddyCommand_None = 0;
+	k_eBoardBuddyCommand_Move = 1;
+}
+
+message CClientReconnectInfo {
+	optional fixed64 server_steam_id = 1;
+	optional uint64 lobby_id = 2;
+	optional uint32 time_updated = 3;
+	optional uint32 udp_connect_ip = 4;
+	optional uint32 udp_connect_port = 5;
+	optional uint32 compatibility_version = 7;
+}
+
+message CMsgPlayerStateUpdatesComplete {
+}
+
+message CMsgClientUnderlordLoadout {
+	repeated uint32 item_defs = 1;
+	optional string loadout_name = 2;
+	optional bool selected = 3;
+	optional uint32 underlord_id = 4;
+}
+
+message CMsgClientUnderlordLoadoutList {
+	optional uint32 version = 1;
+	repeated .CMsgClientUnderlordLoadout loadouts = 2;
+}
+
+message CMsgPlayerOrder {
+	required .EPlayerOrder order = 1 [default = EPlayerOrder_SellUnit];
+	optional int32 param1 = 2;
+	optional int32 param2 = 3;
+	optional int32 param3 = 4;
+	optional uint32 spoof_player_slot = 5;
+	optional uint32 command_id = 6;
+	optional int32 param4 = 7;
+	optional int32 param5 = 8;
+	optional int32 param6 = 9;
+	optional string string_param1 = 10;
+}
+
+message CMsgPlayerOrderProcessed {
+	optional uint32 command_id = 1;
+}
+
+message CMsgPlayerCombinedHero {
+	optional uint32 player_slot = 1;
+	optional int32 unit_id = 2;
+	optional uint32 new_rank = 3;
+	optional uint32 entindex = 4;
+	optional uint32 notification_id = 5;
+	optional bool duos_combine = 6;
+}
+
+message CMsgPlayerAcquiredItem {
+	optional uint32 player_slot = 1;
+	optional int32 item_id = 2;
+	optional uint32 notification_id = 3;
+}
+
+message CMsgPlayerRecievedUnitFromDuosPartner {
+	optional int32 unit_id = 1;
+}
+
+message CMsgPlayerSelectedTalent {
+	optional uint32 player_slot = 1;
+	optional int32 talent_itemdef_index = 2;
+	optional uint32 notification_id = 3;
+}
+
+message CMsgPlayerCombatResult {
+	message DamageSource {
+		required .EDamageSourceType type = 1 [default = k_EDamageSourceType_Round];
+		optional int32 entity_id = 2;
+		optional int32 rank = 3;
+		optional int32 damage_dealt = 4;
+	}
+
+	optional uint32 player_slot = 1;
+	optional .ERoundCombatResult result = 4 [default = ERoundCombatResult_Draw];
+	optional uint32 damage_taken = 5;
+	repeated .CMsgPlayerCombatResult.DamageSource damage_sources = 6;
+	optional bool aegis_used = 7;
+	optional .ERoundVictoryLevel victory_level = 8 [default = ERoundVictoryLevel_HomeDecisive];
+	optional uint32 notification_id = 9;
+	optional uint32 total_gold = 11;
+	optional uint32 gold_from_interest = 12;
+	optional uint32 gold_from_streak = 13;
+	optional uint32 gold_from_items = 14;
+	optional uint32 gold_from_round_bonus = 15;
+	optional uint32 gold_from_victory = 16;
+	optional bool free_reroll = 17;
+
+	oneof opponent {
+		uint32 opponent_player_slot = 2;
+		uint32 opponent_neutral_wave = 3;
+	}
+}
+
+message CMsgPlayerWinStreak {
+	optional uint32 player_slot = 1;
+	optional uint32 streak_length = 2;
+	optional uint32 notification_id = 3;
+}
+
+message CMsgPlayerLevelUp {
+	optional uint32 player_slot = 1;
+	optional uint32 level = 2;
+	optional uint32 notification_id = 3;
+}
+
+message CMsgItemChangedOwner {
+	optional uint32 old_player_slot = 1;
+	optional uint32 new_player_slot = 2;
+	optional uint32 item_id = 3;
+	optional uint32 notification_id = 4;
+}
+
+message CMsgPlayerEliminated {
+	optional uint32 player_slot = 1;
+	optional uint32 final_position = 2;
+	optional uint32 notification_id = 3;
+	optional uint32 opponent_player_slot = 4;
+	optional bool was_head_to_head = 5;
+}
+
+message CMsgPosition {
+	required int32 x = 1;
+	required int32 y = 2;
+}
+
+message CMsgUnit {
+	required int32 entindex = 1;
+	optional int32 unit_id = 2;
+	optional .CMsgPosition position = 3;
+	optional int32 rank = 4;
+	optional int32 gold_value = 6;
+	optional uint32 kill_count = 8;
+	optional uint32 kill_streak = 9;
+	repeated .EUnitKeyword keywords = 10;
+	optional bool is_summoned = 11;
+	optional uint32 duel_bonus_damage = 12;
+	optional int32 unit_cap_cost = 13;
+	optional bool is_placeable_item = 14;
+	optional bool bot_ignore = 15;
+	optional bool can_move_to_bench = 16;
+	optional bool can_be_sold = 17;
+	optional bool recommended_for_placement = 18;
+	optional float float_kill_count = 38;
+}
+
+message CMsgShopItem {
+	optional int32 unit_id = 1;
+	optional bool will_combine_two_stars = 2;
+	optional int32 gold_cost = 3;
+	optional bool wanted_legendary = 4;
+	optional bool will_combine_three_stars = 5;
+	repeated .EUnitKeyword keywords = 6;
+}
+
+message CMsgTurboBucket {
+	repeated .EUnitKeyword keywords = 1;
+	repeated int32 unit_ids = 2;
+}
+
+message CMsgUnderlordPickerOffering {
+	optional uint32 underlord_id = 1;
+	optional uint32 build_id = 2;
+}
+
+message CMsgSynergy {
+	optional .EUnitKeyword keyword = 1 [default = EUnitKeyword_Invalid];
+	optional int32 unique_unit_count = 2;
+	optional int32 bench_additional_unique_unit_count = 3;
+}
+
+message CMsgItemSlot {
+	optional uint32 slot_index = 1;
+	required uint32 item_id = 2;
+	optional int32 assigned_unit_entindex = 3;
+}
+
+message CMsgBoardBuddy {
+	optional float desired_pos_x = 1;
+	optional float desired_pos_y = 2;
+}
+
+message CMsgMapProp {
+	optional uint32 prop_idx = 1;
+	optional uint32 prop_state = 2;
+	optional uint32 num_clicks = 3;
+}
+
+message CMsgPublicPlayerState {
+	message LoadoutItem {
+		optional uint32 slot = 1;
+		optional uint32 sub_slot = 2;
+		optional uint32 def_index = 3;
+	}
+
+	required uint32 player_slot = 1;
+	optional uint32 account_id = 2;
+	optional .EPlayerConnectionState connection_status = 3 [default = EPlayerConnectionState_Connecting];
+	optional bool is_human_player = 4;
+	optional int32 health = 5;
+	optional int32 gold = 6;
+	optional int32 level = 7;
+	optional int32 xp = 8;
+	repeated .CMsgItemSlot item_slots = 9;
+	repeated .CMsgUnit units = 10;
+	optional uint32 final_place = 14;
+	optional int32 next_level_xp = 15;
+	repeated .CMsgSynergy synergies = 16;
+	optional string bot_persona_name = 17;
+	optional uint64 sequence_number = 18;
+	optional int32 shop_cost_modifier = 20;
+	optional float combat_duration = 21;
+	optional int32 reroll_cost_modifier = 22;
+	optional int32 win_streak = 26;
+	optional int32 lose_streak = 27;
+	optional uint32 rank_tier = 28;
+	optional float disconnected_time = 29;
+	optional uint32 vs_opponent_wins = 30;
+	optional uint32 vs_opponent_losses = 31;
+	optional uint32 vs_opponent_draws = 32;
+	optional .EDACPlatform platform = 33 [default = k_eDACPlatform_None];
+	optional uint32 event_tier = 34;
+	optional string persona_name = 36;
+	optional uint32 wins = 37;
+	optional uint32 losses = 38;
+	optional uint32 global_leaderboard_rank = 39;
+	repeated .CMsgPublicPlayerState.LoadoutItem player_loadout = 40;
+	optional uint32 net_worth = 41;
+	optional uint32 combat_result = 43;
+	optional .EDACLobbyTeam lobby_team = 44 [default = k_EDACLobbyTeam_Team0];
+	repeated uint32 underlord_selected_talents = 45;
+	optional bool is_mirrored_match = 46;
+	optional uint32 underlord = 47;
+	optional uint32 party_index = 48;
+	optional uint32 next_combat_opponent_neutral_wave = 49;
+	optional int32 board_unit_limit = 52;
+	repeated uint32 underlord_available_talents = 53;
+	optional uint32 combat_type = 54;
+	optional .CMsgBoardBuddy board_buddy = 55;
+	repeated .CMsgMapProp prop_state = 56;
+	optional float brawny_kills_float = 57;
+	optional bool owns_event = 58;
+	optional uint32 city_prestige_level = 59;
+	optional uint32 stat_best_victory_duration = 1000;
+	optional uint32 stat_best_victory_net_worth = 1001;
+	optional uint32 stat_best_victory_remaining_health_percent = 1002;
+	optional uint32 stat_best_victory_units = 1006;
+	optional uint32 stat_prev_victory_duration = 1003;
+	optional uint32 stat_prev_victory_net_worth = 1004;
+	optional uint32 stat_prev_victory_remaining_health_percent = 1005;
+	optional uint32 stat_prev_victory_units = 1007;
+
+	oneof opponent {
+		uint32 opponent_player_slot = 24;
+		uint32 opponent_neutral_wave = 25;
+	}
+}
+
+message CMsgPublicPostMatchStats {
+	message PlayerPerRoundInfo {
+		optional uint32 gold = 1;
+		optional uint32 health = 2;
+		optional uint32 level = 3;
+		optional uint32 wins = 4;
+		optional uint32 losses = 5;
+		optional uint32 net_worth = 6;
+		repeated .CMsgUnit units = 7;
+		repeated uint32 synergies = 8;
+		repeated .CMsgItemSlot item_slots = 9;
+		repeated uint32 underlord_selected_talents = 10;
+	}
+
+	message PlayerInfo {
+		repeated .CMsgPublicPostMatchStats.PlayerPerRoundInfo rounds = 1;
+		optional uint32 player_slot = 2;
+		optional uint32 account_id = 3;
+		optional bool is_human_player = 4;
+		optional string persona_name = 5;
+		optional uint32 mmr_level = 6;
+		optional uint32 global_leaderboard_rank = 7;
+		optional uint32 final_position = 8;
+		optional .EDACLobbyTeam lobby_team = 9 [default = k_EDACLobbyTeam_Team0];
+	}
+
+	repeated .CMsgPublicPostMatchStats.PlayerInfo players = 1;
+	optional uint32 game_mode = 2;
+	optional uint64 match_id = 3;
+}
+
+message CMsgIndividualPostMatchStats {
+	message Round {
+		repeated .CMsgUnit units = 1;
+		repeated uint32 synergies = 2;
+		repeated .CMsgItemSlot items = 3;
+		optional uint32 gold_spent_on_rerolls = 4;
+		optional uint32 gold_earned = 5;
+		optional uint32 interest_gold_earned = 6;
+		optional uint32 streak_gold_earned = 7;
+		optional uint32 victory = 8;
+		optional uint32 xp_earned = 9;
+		optional uint32 health = 10;
+		optional uint32 gold = 11;
+		optional uint32 round_ranking = 12;
+		optional uint32 level = 13;
+		optional uint32 enemy_player_slot = 14;
+		optional uint32 gold_spent_on_levels = 15;
+		optional uint32 gold_spent_on_units = 16;
+		optional uint32 damage_dealt_to_units = 17;
+		optional uint32 victory_level = 18;
+		optional uint32 damage_dealt_to_player = 19;
+		optional uint32 enemy_underlord = 20;
+		repeated uint32 underlord_selected_talents = 21;
+	}
+
+	message Challenge {
+		optional uint32 slot_id = 1;
+		optional uint32 sequence_id = 2;
+		optional uint32 progress = 3;
+		optional uint32 initial_progress = 4;
+		optional uint32 claimed = 5;
+	}
+
+	message Currency {
+		optional uint32 currency_id = 1;
+		optional uint32 initial_amount = 2;
+		optional uint32 amount_gained = 3;
+	}
+
+	message Event {
+		optional uint32 event_id = 1;
+		optional bool event_owned = 2;
+		optional uint32 event_tier = 3;
+		repeated .CMsgIndividualPostMatchStats.Challenge challenges = 4;
+		repeated .CMsgIndividualPostMatchStats.Currency currencies = 5;
+	}
+
+	message RankUpdate {
+		optional uint32 initial_level_score = 1;
+		optional uint32 initial_level = 2;
+		optional float initial_level_partial_progress = 3;
+		optional uint32 final_level_score = 4;
+		optional uint32 final_level = 5;
+		optional float final_level_partial_progress = 6;
+		optional uint32 initial_leaderboard_place = 7;
+	}
+
+	repeated .CMsgIndividualPostMatchStats.Round rounds = 1;
+	optional uint32 player_slot = 2;
+	optional uint32 position = 3;
+	repeated .CMsgIndividualPostMatchStats.Event events = 4;
+	optional .CMsgIndividualPostMatchStats.RankUpdate individual_rank_update = 5;
+	optional .CMsgIndividualPostMatchStats.RankUpdate duos_rank_update = 6;
+	optional .EDACGameMode game_mode = 7 [default = k_EDACGameMode_Invalid];
+	optional .EDACMatchMode match_mode = 8 [default = k_EDACMatchMode_Invalid];
+	optional .EDACBotDifficulty bot_difficulty = 9 [default = k_EDACBotDifficulty_None];
+	optional uint32 underlord_id = 10;
+	optional uint32 underlord_build_id = 11;
+	optional .CMsgGameModeSettings game_mode_settings = 12;
+}
+
+message CMsgPlayerPreferences {
+	optional bool auto_deploy_units = 1;
+}
+
+message CMsgPrivatePlayerState {
+	message ItemChoiceReward {
+		message Choice {
+			required uint32 item_id = 1;
+			optional bool available = 2;
+		}
+
+		required int32 reward_id = 1;
+		repeated .CMsgPrivatePlayerState.ItemChoiceReward.Choice choices = 2;
+	}
+
+	message Challenge {
+		optional uint32 slot_id = 1;
+		optional uint32 sequence_id = 2;
+		optional uint32 progress = 3;
+		optional uint32 initial_progress = 4;
+		optional uint32 claimed = 5;
+	}
+
+	enum EGrantRewards {
+		EGrantRewards_No = 0;
+		EGrantRewards_Yes = 1;
+		EGrantRewards_NoLongerEligible = 2;
+	}
+
+	required uint32 player_slot = 1;
+	optional int32 unclaimed_reward_count = 2;
+	optional .CMsgPrivatePlayerState.ItemChoiceReward oldest_unclaimed_reward = 3;
+	optional bool shop_locked = 4;
+	repeated .CMsgShopItem shop_units = 5;
+	optional uint32 gold_earned_this_round = 6;
+	optional uint32 shop_generation_id = 7;
+	repeated .CMsgPrivatePlayerState.Challenge challenges = 8;
+	optional .CMsgPrivatePlayerState.EGrantRewards grants_rewards = 9 [default = EGrantRewards_No];
+	optional uint32 sequence_number = 10;
+	optional int32 reroll_cost = 11;
+	optional bool used_turbo_bucket_reroll = 20;
+	repeated .CMsgTurboBucket turbo_buckets = 21;
+	optional bool can_select_underlord = 22;
+	repeated .CMsgUnderlordPickerOffering underlord_picker_offering = 23;
+	optional bool used_item_reward_reroll_this_round = 24;
+}
+
+message CMsgMatchState {
+	message TeamInfo {
+		optional .EDACLobbyTeam lobby_team = 1 [default = k_EDACLobbyTeam_Team0];
+		optional string team_name = 2;
+		optional uint32 team_mmr_level = 3;
+		optional uint32 team_leaderboard_place = 4;
+	}
+
+	optional .EGameState game_state = 1 [default = EGameState_Intro];
+	optional .ERoundState round_state = 2 [default = ERoundState_Preparing];
+	optional int32 round_number = 3;
+	optional float state_change_time = 4;
+	optional float state_duration = 5;
+	optional float paused_state_time_remaining = 6;
+	optional uint64 match_id = 8;
+	optional .CMsgGameModifiers game_modifiers = 9;
+	repeated .CMsgMatchState.TeamInfo team_info = 10;
+	optional string feature_controls = 11;
+}
+
+message CMsgGameModeState_Normal {
+}
+
+message CMsgGameModeState_Turbo {
+	optional .CMsgGameModeState_Normal base_normal = 1;
+}
+
+message CMsgDuos_TeamCombatResult {
+	optional uint32 player_slot = 1;
+	optional uint32 opponent_slot = 2;
+	optional int32 damage_result = 3;
+	optional uint32 teammate_slot = 4;
+	optional uint32 teammate_opponent_slot = 5;
+	optional int32 teammate_damage_result = 6;
+}
+
+message CMsgGameModeState_Duos {
+	optional .CMsgGameModeState_Normal base_normal = 1;
+	repeated .CMsgDuos_TeamCombatResult combat_results = 2;
+}
+
+message CMsgGameModeState_TechPrototypeA {
+	optional int32 rounds_remaining = 1;
+}
+
+message CMsgGameModeState_Sandbox {
+	optional int32 opponent_player_slot = 1;
+}
+
+message CMsgGameModeState_Puzzle {
+	message ActiveRule {
+		optional .EDACPuzzleRule rule = 1 [default = k_EDACPuzzleRule_None];
+		optional bool satisfied = 2;
+		repeated int32 constraints = 3 [packed = true];
+		optional int32 current_value = 4;
+	}
+
+	optional int32 opponent_player_slot = 1;
+	repeated .CMsgGameModeState_Puzzle.ActiveRule active_rules = 2;
+	optional bool active_rules_satisfied = 3;
+	optional int32 puzzle_id = 4;
+	repeated uint32 allowed_unit_def_indices = 5;
+}
+
+message CMsgGameModeState_Tutorial {
+	optional string tutorial_state_name = 1;
+	optional int32 opponent_player_slot = 2;
+}
+
+message CMsgGameModeState_Streetfight {
+	optional uint32 streetfight_id = 1;
+	optional int32 opponent_player_slot = 2;
+}
+
+message DungeonActionCard {
+	optional int32 card_id = 1;
+}
+
+message CMsgGameModeState_Dungeon {
+	optional .EDACDungeonPhase dungeon_phase = 1 [default = k_EDACDungeonPhase_None];
+	optional .EDACDungeonRoomType current_room_type = 2 [default = k_EDACDungeonRoomType_None];
+	repeated .EDACDungeonRoomType next_room_types = 3;
+	repeated .DungeonActionCard available_cards = 4;
+}
+
+message CMsgGameModeState {
+	oneof details {
+		.CMsgGameModeState_Normal details_normal = 1;
+		.CMsgGameModeState_Turbo details_turbo = 2;
+		.CMsgGameModeState_Duos details_duos = 3;
+		.CMsgGameModeState_TechPrototypeA details_tech_prototype_a = 4;
+		.CMsgGameModeState_Sandbox details_sandbox = 5;
+		.CMsgGameModeState_Puzzle details_puzzle = 6;
+		.CMsgGameModeState_Tutorial details_tutorial = 7;
+		.CMsgGameModeState_Streetfight details_streetfight = 8;
+		.CMsgGameModeState_Dungeon details_dungeon = 9;
+	}
+}
+
+message CMsgUnitPosition {
+	required float x = 1;
+	required float y = 2;
+	required float z = 3;
+}
+
+message CMsgUnitPositionAndFacing {
+	required float x = 1;
+	required float y = 2;
+	required float z = 3;
+	required float yaw = 4;
+}
+
+message CMsgUnitAbilityCooldown {
+	required uint32 ability_id = 1;
+	required float cooldown_ratio = 2;
+}
+
+message CMsgUnitSnapshot {
+	optional int32 entindex = 1;
+	optional int32 unit_id = 2;
+	optional int32 team_number = 3;
+	optional .CMsgUnitPositionAndFacing position = 4;
+	optional int32 health = 5;
+	optional int32 mana = 6;
+	repeated string particle_attachment_names = 7;
+	optional int32 rank = 8;
+	optional .EUnitAIState ai_state = 9 [default = EUnitAIState_Idle];
+	optional float cooldown_ratio = 10;
+	optional uint32 kill_count = 12;
+	optional uint32 kill_streak = 13;
+	optional int32 max_health = 14;
+	repeated .EUnitKeyword keywords = 15;
+	optional .CMsgUnitPositionAndFacing starting_position = 16;
+	optional bool is_summoned = 17;
+	optional int32 summon_owner_entindex = 18;
+	optional uint32 duel_bonus_damage = 19;
+	optional int32 armor = 20;
+	optional uint32 underlord_power = 21;
+	optional uint32 status_label = 22;
+	optional uint32 status_effect_index = 23;
+	optional float attacks_per_second = 24;
+	optional int32 damage_min = 25;
+	optional int32 damage_max = 26;
+	optional int32 damage_bonus = 27;
+	optional bool full_update = 28;
+	repeated .CMsgUnitAbilityCooldown ability_cooldowns = 29;
+	repeated uint32 abilities_enabled = 30;
+	repeated uint32 buff_status = 31;
+	optional bool force_big_healthbar = 32;
+	optional uint32 override_item_slot = 33;
+	optional int32 range_bonus = 34;
+	optional bool can_move_to_bench = 35;
+	optional bool can_be_sold = 36;
+	optional bool recommended_for_placement = 37;
+	optional float float_kill_count = 38;
+	optional float cooldown_multiplier = 39;
+	optional bool client_synthesized_for_setup = 1001;
+	optional bool client_is_on_bench = 1002;
+}
+
+message CMsgUnitMeterDamageDealt {
+	optional int32 total_damage_dealt = 1;
+	optional int32 spell_damage_dealt = 2;
+	optional int32 attack_damage_dealt = 3;
+	optional int32 item_damage_dealt = 4;
+}
+
+message CMsgUnitMeterDetail {
+	optional int32 value = 2;
+	optional uint32 id = 3;
+}
+
+message CMsgUnitMeterDamageTaken {
+	optional int32 total_damage_taken = 1;
+	optional int32 physical_damage_taken = 2;
+	optional int32 magical_damage_taken = 3;
+	optional int32 pure_damage_taken = 4;
+}
+
+message CMsgUnitMeterSnapshot {
+	optional int32 entindex = 1;
+	optional int32 unit_id = 2;
+	optional int32 team_number = 3;
+	optional .CMsgUnitMeterDamageDealt damage_dealt = 4;
+	optional .CMsgUnitMeterDamageTaken damage_taken = 5;
+	optional uint32 healing_done = 6;
+	optional uint32 kills = 7;
+	optional float time_of_death = 8;
+	optional uint32 rank = 9;
+	optional int32 globalindex = 10;
+	repeated .CMsgUnitMeterDetail damage_dealt_details = 11;
+	repeated .CMsgUnitMeterDetail healing_done_details = 12;
+	optional float disable_done = 13;
+	repeated .CMsgUnitMeterDetail damage_taken_details = 14;
+	repeated .CMsgUnitMeterDetail kills_details = 15;
+	repeated .CMsgUnitMeterDetail disable_done_details = 16;
+}
+
+message CMsgCombatMetersSnapshot {
+	required float snapshot_time = 1;
+	repeated .CMsgUnitMeterSnapshot units = 2;
+}
+
+message CMsgCombatDebugSnapshot {
+	message PathfindingCell {
+		required bool reserved = 1;
+		optional int32 owner_entindex = 2;
+	}
+
+	message ActivePath {
+		optional int32 owner_entindex = 1;
+		repeated .CMsgPosition path_waypoints = 2;
+		optional int32 path_waypoint_index = 3;
+	}
+
+	repeated .CMsgCombatDebugSnapshot.PathfindingCell pathfinding_cells = 1;
+	repeated .CMsgCombatDebugSnapshot.ActivePath active_paths = 2;
+}
+
+message CMsgCombatSnapshot {
+	required float snapshot_time = 1;
+	repeated .CMsgUnitSnapshot units = 2;
+	optional .CMsgCombatDebugSnapshot debug_snapshot = 3;
+}
+
+message CMsgCombatEvent_Attack {
+	optional int32 attack_projectile_speed = 1;
+}
+
+message CMsgCombatEvent_Damage {
+	optional uint32 damage_amount = 1;
+	optional bool is_critical = 2;
+}
+
+message CMsgCombatEvent_AttackMissed {
+}
+
+message CMsgCombatEvent_AttackEvaded {
+}
+
+message CMsgCombatEvent_AttackBlocked {
+	optional uint32 block_amount = 1;
+}
+
+message CMsgCombatEvent_Death {
+}
+
+message CMsgCombatEvent_StartAttack {
+	optional float attack_speed = 1;
+}
+
+message CMsgCombatEvent_SoundEvent {
+	optional uint32 soundevent_hash = 1;
+	optional .CMsgUnitPosition position = 2;
+	optional bool restrict_to_home_team = 4;
+}
+
+message CMsgCombatEvent_SpeechEvent {
+	optional string vcd_name = 1;
+	optional bool restrict_to_home_team = 2;
+	optional int32 priority = 3;
+}
+
+message CMsgCombatEvent_ModifierCreate {
+	required uint32 modifier_entindex = 1;
+	required uint32 modifier_id = 2;
+	optional float duration = 3;
+	optional int32 synergy_level = 4;
+}
+
+message CMsgCombatEvent_ModifierDestroy {
+	required uint32 modifier_entindex = 1;
+}
+
+message CMsgCombatEvent_StartGesture {
+	required uint32 activity = 1;
+	optional float fade_in = 2;
+	optional float fade_out = 3;
+	optional int32 slot = 4;
+	optional float duration = 5;
+}
+
+message CMsgCombatEvent_StopGesture {
+	required uint32 activity = 1;
+}
+
+message CMsgCombatEvent_CancelAttack {
+}
+
+message CMsgCombatEvent_CombatEnded {
+	optional bool ran_out_of_time = 1;
+}
+
+message CMsgCombatEvent_Resurrect {
+}
+
+message CMsgCombatEvent_CastAbility {
+	optional uint32 ability_id = 1;
+}
+
+message CMsgCombatEvent {
+	required float event_time = 1;
+	optional uint32 source_entindex = 2;
+	optional uint32 target_entindex = 3;
+
+	oneof details {
+		.CMsgCombatEvent_Attack details_attack = 4;
+		.CMsgCombatEvent_Damage details_damage = 5;
+		.CMsgCombatEvent_Death details_death = 6;
+		.CMsgCombatEvent_StartAttack details_start_attack = 7;
+		.CMsgCombatEvent_SoundEvent details_sound_event = 8;
+		.CUserMsg_ParticleManager details_particle_event = 9;
+		.CMsgCombatEvent_ModifierCreate details_modifier_create = 10;
+		.CMsgCombatEvent_ModifierDestroy details_modifier_destroy = 11;
+		.CMsgCombatEvent_StartGesture details_start_gesture = 12;
+		.CMsgCombatEvent_CancelAttack details_cancel_attack = 13;
+		.CMsgCombatEvent_CombatEnded details_combat_ended = 14;
+		.CMsgCombatEvent_AttackMissed details_attack_missed = 15;
+		.CMsgCombatEvent_AttackEvaded details_attack_evaded = 16;
+		.CMsgCombatEvent_AttackBlocked details_attack_blocked = 17;
+		.CMsgCombatEvent_Resurrect details_resurrect = 18;
+		.CMsgCombatEvent_SpeechEvent details_speech_event = 19;
+		.CMsgCombatEvent_CastAbility details_cast_ability = 20;
+		.CMsgCombatEvent_StopGesture details_stop_gesture = 21;
+	}
+}
+
+message CMsgCombatHighlight {
+	required .EDACIncidentType highlight_type = 1 [default = EDACIncidentType_None];
+	optional float start_time = 2;
+	optional float finish_time = 3;
+	optional int32 source_unit_idx = 4;
+	optional int32 target_unit_idx = 5;
+	optional float magnitude = 6;
+}
+
+message CMsgRoundCombat {
+	optional int32 round_number = 1;
+	optional float combat_duration = 2;
+	optional float combat_intro_duration = 3;
+	optional float added_time_before_results = 4;
+	repeated .CMsgCombatSnapshot snapshots = 5;
+	repeated .CMsgCombatEvent events = 6;
+	optional .ERoundCombatResult result = 7 [default = ERoundCombatResult_Draw];
+	optional uint32 player_player_slot = 8;
+	repeated .CMsgCombatMetersSnapshot meter_snapshots = 11;
+	repeated .CMsgCombatHighlight combat_highlights = 12;
+	optional bool mirrored = 14;
+
+	oneof opponent {
+		uint32 opponent_player_slot = 9;
+		uint32 opponent_neutral_wave = 10;
+	}
+}
+
+message CMsgBattle {
+	optional int32 round_number = 1;
+	repeated .CMsgRoundCombat combats = 2;
+	optional .CMsgRoundCombatGlobal global = 3;
+}
+
+message CMsgRoundCombatGlobal {
+	message EventList {
+		repeated .CMsgCombatEvent events = 1;
+	}
+
+	message CombatPlayerSlotToEventsEntry {
+		optional uint32 key = 1;
+		optional .CMsgRoundCombatGlobal.EventList value = 2;
+	}
+
+	optional int32 round_number = 1;
+	repeated .CMsgRoundCombatGlobal.CombatPlayerSlotToEventsEntry combat_player_slot_to_events = 2;
+}
+
+message CMsgClientServerHeader {
+	required .EDACGameMessages msg_id = 1 [default = k_EMsgNetBufferContents];
+	optional bytes payload = 2;
+}
+
+message CMsgNetBufferContents {
+	optional bool is_diff = 1;
+	optional bool is_last = 2;
+	optional bytes payload = 3;
+	optional uint32 unpacked_state_size = 4;
+	optional .EDACNetBuffer net_buffer_type = 5 [default = k_eDACNetBuffer_MatchState];
+	optional uint32 net_buffer_id = 6;
+	optional uint32 server_time_ms = 7;
+	optional bool is_result_compressed = 8;
+	optional bool is_update_compressed = 9;
+}
+
+message CMsgNetBufferRemoved {
+	optional .EDACNetBuffer net_buffer_type = 5 [default = k_eDACNetBuffer_MatchState];
+	optional uint32 net_buffer_id = 6;
+}
+
+message CMsgClientConnectionStarted {
+	message GameConstants {
+		message UnitChances {
+			repeated float chance = 1;
+		}
+
+		optional .CMsgGameModeSettings game_mode_settings = 1;
+		repeated int32 player_experience_table = 2;
+		optional int32 experience_purchase_gold_cost = 3;
+		optional int32 experience_purchase_amount = 4;
+		repeated .CMsgClientConnectionStarted.GameConstants.UnitChances unit_tier_chances = 5;
+		optional int32 max_interest_gold = 6;
+		optional int32 interest_gold_divisor = 7;
+		optional bool win_matters_for_item_rewards = 8;
+		repeated int32 loot_round_numbers = 9;
+		optional bool has_neutral_rounds = 10;
+		optional int32 underlord_selection_round = 11;
+		optional float kill_multiplier = 12;
+		optional uint32 prestige_level = 13;
+	}
+
+	message GameManager {
+		optional uint32 definition_set = 1;
+	}
+
+	optional bool in_developer_mode = 1;
+	optional bool in_offline_mode = 2;
+	optional bool is_listen_server_game = 3;
+	optional bool is_single_human_game = 4;
+	optional .EDACMatchMode match_mode = 5 [default = k_EDACMatchMode_Invalid];
+	optional .EDACGameMode game_mode = 6 [default = k_EDACGameMode_Invalid];
+	optional .CMsgClientConnectionStarted.GameConstants game_constants = 7;
+	optional .CMsgClientConnectionStarted.GameManager game_manager = 8;
+}
+
+message CMsgClientConnectionComplete {
+}
+
+message CMsgClientSetDebugNetBuffer {
+	optional uint32 net_buffer_id = 1;
+	optional string contents = 2;
+	optional uint32 repeat = 3;
+	optional bool force_full_send = 4;
+}
+
+message CDACNetBuffer_Debug {
+	optional string contents = 1;
+}
+
+message CMsgGameReplayActionMarker {
+	enum EActionType {
+		k_eActionType_Placholder = 1;
+	}
+
+	optional .CMsgGameReplayActionMarker.EActionType action = 1 [default = k_eActionType_Placholder];
+}
+
+message CMsgModifierName {
+	message Modifier {
+		required uint32 modifier_id = 1;
+		required string modifier_name = 2;
+	}
+
+	repeated .CMsgModifierName.Modifier modifier_list = 1;
+}
+
+message CMsgClientToServerChatMsg {
+	optional uint32 message_id = 1;
+	optional string custom_text = 2;
+	optional .EInGameChatType chat_type = 3 [default = k_eInGameChatType_Global];
+	optional uint32 board_spray_id = 4;
+	optional float board_spray_x = 5;
+	optional float board_spray_y = 6;
+	optional uint32 sprayed_board_player_slot = 7;
+}
+
+message CMsgServerToClientChatMsg {
+	optional uint32 player_slot = 1;
+	optional uint32 message_id = 2;
+	optional string custom_text = 3;
+	optional uint32 notification_id = 4;
+	optional .EInGameChatType chat_type = 5 [default = k_eInGameChatType_Global];
+	optional uint32 board_spray_id = 6;
+	optional float board_spray_x = 7;
+	optional float board_spray_y = 8;
+	optional uint32 sprayed_board_player_slot = 9;
+}
+
+message CMsgClientToServerClickMsg {
+	optional .EClickType click_type = 1 [default = k_eClickType_Left];
+	optional uint32 target_player_slot = 2;
+	optional float click_x = 3;
+	optional float click_y = 4;
+	optional float click_z = 5;
+}
+
+message CMsgServerToClientClickMsg {
+	optional .EClickType click_type = 1 [default = k_eClickType_Left];
+	optional uint32 source_player_slot = 2;
+	optional uint32 target_player_slot = 3;
+	optional float click_x = 4;
+	optional float click_y = 5;
+	optional float click_z = 6;
+}
+
+message CMsgPlayerMapPropCommand {
+	optional uint32 command = 1;
+	optional uint32 player_slot = 2;
+	optional uint32 prop_idx = 3;
+}
+
+message CMsgClientToServerTeammateDuosMessage {
+	optional uint32 teammate_slot = 1;
+	optional .EDuosMessageType message_type = 2 [default = k_eDuosMessageType_None];
+	optional .EDuosMessageTargetType target_type = 3 [default = k_eDuosMessageTargetType_None];
+	optional uint32 target_id = 4;
+}
+
+message CMsgServerToClientTeammateDuosMessage {
+	optional uint32 teammate_slot = 1;
+	optional .EDuosMessageType message_type = 2 [default = k_eDuosMessageType_None];
+	optional .EDuosMessageTargetType target_type = 3 [default = k_eDuosMessageTargetType_None];
+	optional uint32 target_id = 4;
+}
+
+message CMsgClientToServerLoadShareCode {
+	optional string share_code = 1;
+}
+
+message CMsgClientToServerBoardBuddyCommand {
+	optional uint32 command = 1;
+	optional float pos_x = 2;
+	optional float pos_y = 3;
+}
+
+message CMsgClientToServerPuzzleLeaderboardCommand {
+	optional uint32 leaderboard = 1;
+}
+
+message CMsgRecordLocalBotStats {
+	optional bytes serialized_msg = 1;
+}
+
+message CMsgClientToServerUpvoteNotification {
+	optional uint32 notification_id = 1;
+}
+
+message CMsgServerToClientNotificationChanged {
+	message UpvoteSubtype {
+		optional uint32 item_id = 1;
+		optional uint32 upvotes = 2;
+	}
+
+	optional uint32 notification_id = 1;
+	optional uint32 upvotes = 2;
+	repeated .CMsgServerToClientNotificationChanged.UpvoteSubtype subtypes = 3;
+}
+
+message CMsgClientToServerLocalPlayerInventory {
+	message LoadoutItem {
+		optional uint32 slot = 1;
+		optional uint32 sub_slot = 2;
+		optional uint32 def_index = 3;
+	}
+
+	repeated .CMsgClientToServerLocalPlayerInventory.LoadoutItem player_loadout = 1;
+}
+
+message CMsgGameStateIntegrationData {
+	optional uint32 id = 1;
+	optional .CMsgPublicPlayerState public_player_state = 2;
+	optional .CMsgPrivatePlayerState private_player_state = 3;
+}
+
+message CMsgGameStateIntegrationBlock {
+	repeated .CMsgGameStateIntegrationData data = 1;
+	optional uint32 id = 2;
+}
+
+message CMsgGameStateIntegrationUpdate {
+	repeated .CMsgGameStateIntegrationBlock block = 1;
+	optional string auth = 2;
+}
+
+message CMsgClientToServerInitData {
+	optional .CMsgGameModifiers game_modifiers = 1;
+	optional uint32 event_id = 2;
+	optional bool developer_mode = 3;
+	optional string load_save_file = 4;
+	optional int32 local_mmr_level = 5 [default = -1];
+	optional uint32 underlord = 6;
+	optional uint32 local_global_leaderboard_rank = 7;
+	optional bool offline_mode = 8;
+	optional int32 bot_difficulty = 9 [default = 0];
+	optional bool tutorial = 10;
+	optional .EDACGameMode game_mode = 11 [default = k_EDACGameMode_Normal];
+	optional .CMsgGameModeSettings game_mode_settings = 12;
+	optional string feature_controls = 13;
+	optional uint32 active_challenge_slot_id = 14;
+}
+
+message CMsgClientAccountSyncStorageFile {
+	optional uint32 version = 1;
+	repeated uint32 ids = 2;
+	repeated uint32 values = 3;
+}
+
+message CMsgPlayerChallengeCompletePrediction {
+	optional uint32 event_id = 1;
+	optional uint32 slot_id = 2;
+	optional uint32 challenge_id = 3;
+	optional uint32 config_id = 4;
+	optional uint32 initial_progress = 5;
+	optional uint32 predicted_total = 6;
+}

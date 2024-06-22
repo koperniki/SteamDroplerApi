@@ -1,0 +1,8 @@
+{
+  "Password": "pass",
+  "IdleEnable": true,
+  "SharedSecret" : "secret",
+  "AuthType": "WithSecretKey"
+}
+
+

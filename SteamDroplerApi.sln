@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamDroplerApi", "SteamDroplerApi\SteamDroplerApi.csproj", "{522EDF57-0A32-421D-A817-BE03CF22E30C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamDroplerApi.Core", "SteamDroplerApi.Core\SteamDroplerApi.Core.csproj", "{C69B24A4-C7DE-4536-B000-525FAE92BDC5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamKit2", "SteamKit\SteamKit2\SteamKit2\SteamKit2.csproj", "{4B2B0365-DE37-4B65-B614-3E4E7C05147D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamDroplerApi.Worker", "SteamDroplerApi.Worker\SteamDroplerApi.Worker.csproj", "{C17D599E-BB35-44CD-ACF4-7FF53AD64E40}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{522EDF57-0A32-421D-A817-BE03CF22E30C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{522EDF57-0A32-421D-A817-BE03CF22E30C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{522EDF57-0A32-421D-A817-BE03CF22E30C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{522EDF57-0A32-421D-A817-BE03CF22E30C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C69B24A4-C7DE-4536-B000-525FAE92BDC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C69B24A4-C7DE-4536-B000-525FAE92BDC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C69B24A4-C7DE-4536-B000-525FAE92BDC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C69B24A4-C7DE-4536-B000-525FAE92BDC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B2B0365-DE37-4B65-B614-3E4E7C05147D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B2B0365-DE37-4B65-B614-3E4E7C05147D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B2B0365-DE37-4B65-B614-3E4E7C05147D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B2B0365-DE37-4B65-B614-3E4E7C05147D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C17D599E-BB35-44CD-ACF4-7FF53AD64E40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C17D599E-BB35-44CD-ACF4-7FF53AD64E40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C17D599E-BB35-44CD-ACF4-7FF53AD64E40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C17D599E-BB35-44CD-ACF4-7FF53AD64E40}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

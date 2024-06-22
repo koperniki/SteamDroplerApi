@@ -1,0 +1,8 @@
+{
+  "StartTimeOut": 30,
+  "CoolDownAfterLoginError": 120,
+  "DropConfig" : [{
+    "GameId":232090,
+    "DropItemIds": [910000]
+  }]
+}
