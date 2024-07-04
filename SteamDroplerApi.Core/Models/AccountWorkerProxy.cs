@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using SteamDroplerApi.Core.Configs;
 
 namespace SteamDroplerApi.Core.Models;
@@ -49,7 +50,9 @@ public class AccountWorkerProxy(Account account, MainConfig mainConfig)
     private void StartProcess()
     {
         var startInfo = new ProcessStartInfo();
-        startInfo.FileName = "SteamDroplerApi.Worker.exe";
+        startInfo.FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+            ? "SteamDroplerApi.Worker"
+            : "SteamDroplerApi.Worker.exe";
         startInfo.Arguments = ProxyId;
         startInfo.RedirectStandardOutput = true;
         startInfo.RedirectStandardError = true;
