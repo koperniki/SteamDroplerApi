@@ -28,7 +28,7 @@ jobs:
       run:  dotnet build ./SteamDroplerApi.Worker/SteamDroplerApi.Worker.csproj --configuration Release --runtime linux-x64 --no-restore --self-contained
 
     - name: Publish linux worker application
-      run: dotnet publish ./SteamDroplerApi.Worker/SteamDroplerApi.Worker.csproj /p:DebugType=None /p:DebugSymbols=false -c Release -r linux-x64 -p:PublishSingleFile=true -o ./output
+      run: dotnet publish ./SteamDroplerApi.Worker/SteamDroplerApi.Worker.csproj /p:DebugType=None /p:DebugSymbols=false -c Release -r linux-x64 --no-build --no-restore -p:PublishSingleFile=true -o ./dropler-unix
 
     - name: Restore api dependencies
       run: dotnet restore ./SteamDroplerApi/SteamDroplerApi.csproj
@@ -37,13 +37,10 @@ jobs:
       run:  dotnet build ./SteamDroplerApi/SteamDroplerApi.csproj --configuration Release --runtime linux-x64 --no-restore --self-contained
 
     - name: Publish linux api application
-      run: dotnet publish ./SteamDroplerApi/SteamDroplerApi.csproj /p:DebugType=None /p:DebugSymbols=false -c Release -r linux-x64 -p:PublishSingleFile=true -o ./output
+      run: dotnet publish ./SteamDroplerApi/SteamDroplerApi.csproj /p:DebugType=None /p:DebugSymbols=false -c Release -r linux-x64  --no-build --no-restore -p:PublishSingleFile=true -o ./dropler-unix
 
-    - name: Create zip archive
-      run: zip -r dropler-unix.zip ./output
-
-    - name: Upload zip archive
+    - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: dropler-unix-zip
-        path: dropler-unix.zip
+        name: dropler-unix
+        path: ./dropler-unix
