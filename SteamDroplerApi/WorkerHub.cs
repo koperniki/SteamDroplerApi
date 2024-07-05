@@ -102,6 +102,17 @@ public class WorkerHub(
             account.RunConfig.LoginErrorReason = newAccountData.RunConfig.LoginErrorReason;
             account.RunConfig.LastErrorTime = newAccountData.RunConfig.LastErrorTime;
             account.RunConfig.ErrorReason = newAccountData.RunConfig.ErrorReason;
+            
+            var appDiffs = account.RunConfig.OwnedApps.Any()
+                ? account.RunConfig.OwnedApps.Except(newAccountData.RunConfig.OwnedApps).ToList()
+                : new List<uint>();
+            if (appDiffs.Any())
+            {
+                logger.LogInformation("Account {account} has new apps: [{apps}]", account.Name,
+                    string.Join(";", appDiffs));
+            }
+            account.RunConfig.OwnedApps = newAccountData.RunConfig.OwnedApps;
+            
             await accountConfigService.SaveRunAccountConfig(account);
         }
     }

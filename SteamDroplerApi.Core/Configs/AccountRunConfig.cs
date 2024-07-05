@@ -9,6 +9,7 @@ public class AccountRunConfig
     public DateTime? LastErrorTime { get; set; }
     public string? ErrorReason { get; set; }
     public DateTime? UpdateTime { get; set; }
+    public List<uint> OwnedApps { get; set; } = new List<uint>();
 }
 
 

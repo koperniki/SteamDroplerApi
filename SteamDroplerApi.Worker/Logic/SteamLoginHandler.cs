@@ -10,6 +10,7 @@ namespace SteamDroplerApi.Worker.Logic
 {
     public class SteamLoginHandler
     {
+        public string? WebApiNonce { get; private set; }
         private readonly AccountTracker _accountTracker;
         private readonly SteamClient _client;
         private readonly SteamUser _sUser;
@@ -18,6 +19,7 @@ namespace SteamDroplerApi.Worker.Logic
         private readonly TaskCompletionSource<EResult> _loginTcs;
         private ServerRecord _serverRecord;
         private string? _refreshToken;
+
         public SteamLoginHandler(AccountTracker accountTracker, SteamClient client, CallbackManager manager,
             ServerRecord serverRecord)
         {
@@ -34,7 +36,6 @@ namespace SteamDroplerApi.Worker.Logic
             manager.Subscribe<SteamUser.LoggedOnCallback>(OnLoggedOn);
             manager.Subscribe<SteamUser.LoggedOffCallback>(OnLoggedOff);
         }
-
 
         public Task<EResult> Login(ServerRecord serverRecord)
         {
@@ -137,6 +138,7 @@ namespace SteamDroplerApi.Worker.Logic
                 return;
             }
 
+            WebApiNonce = callback.WebAPIUserNonce;
             await _accountTracker.LoggedIn(_client.SteamID!, _refreshToken!);
             _loginTcs?.TrySetResult(callback.Result);
         }

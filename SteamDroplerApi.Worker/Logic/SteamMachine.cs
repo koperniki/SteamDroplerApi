@@ -15,14 +15,17 @@ namespace SteamDroplerApi.Worker.Logic
         private readonly MainConfig _mainConfig;
         private readonly SteamLoginHandler _loginHandler;
         private readonly SteamClient _client;
-        //private readonly SteamApps _steamApps;
+        private readonly SteamApps _steamApps;
 
         private readonly SteamUnifiedMessages.UnifiedService<IInventory> _inventoryService;
+        private readonly SteamUnifiedMessages.UnifiedService<IPlayer> _playerService;
         //private readonly SteamUnifiedMessages.UnifiedService<IDeviceAuth> _deviceService;
 
         private bool _work = true;
         private readonly CancellationTokenSource _tokenSource;
         private Task? _task;
+        private SteamWebHandler? _steamWebHandler;
+
 
         public SteamMachine(AccountTracker accountTracker, int serverRecordMod, MainConfig mainConfig)
         {
@@ -32,15 +35,18 @@ namespace SteamDroplerApi.Worker.Logic
             _serverRecord = records[recordIndex];
             var manager = new CallbackManager(_client);
             var steamUnifiedMessages = _client.GetHandler<SteamUnifiedMessages>()!;
+            _steamApps = _client.GetHandler<SteamApps>()!;
             _inventoryService = steamUnifiedMessages.CreateService<IInventory>();
+            _playerService = steamUnifiedMessages.CreateService<IPlayer>();
             //_deviceService = steamUnifiedMessages.CreateService<IDeviceAuth>();
             _accountTracker = accountTracker;
           
             //_steamAccount = accountTracker.Account;
             _mainConfig = mainConfig;
             _loginHandler = new SteamLoginHandler(accountTracker, _client, manager, _serverRecord);
-            //_steamApps = _client.GetHandler<SteamApps>()!;
+         
             _tokenSource = new CancellationTokenSource();
+   
 
             Task.Run(() =>
             {
@@ -67,24 +73,31 @@ namespace SteamDroplerApi.Worker.Logic
             await LogOf();
         }
 
+        
+
         private async Task EasyIdling(CancellationToken token)
         {
             try
             {
                 Console.WriteLine("tryLogin");
                 var res = await _loginHandler.Login(_serverRecord);
+                _steamWebHandler = new SteamWebHandler(_client, _loginHandler.WebApiNonce!);
 
                 if (res == EResult.OK)
                 {
                     var appIds = _mainConfig.DropConfig.Select(t => t.GameId).Distinct().ToList();
                     while (!token.IsCancellationRequested)
                     {
-                        await PlayGames(appIds);
-                        await CheckTimeItemsList(_mainConfig.DropConfig);
+                        var ownedGames = await GetOwnedGames();
+                        var possibleGames = ownedGames.Intersect(appIds).ToList();
+                        if (possibleGames.Any())
+                        {
+                            await PlayGames(possibleGames);
+                            await CheckTimeItemsList(_mainConfig.DropConfig, possibleGames);
+                        }
+                       
                         await Task.Delay(1000 * 60 * 30, token);
                     }
-
-                    await CheckTimeItemsList(_mainConfig.DropConfig);
                     StopGame();
                 }
             }
@@ -94,21 +107,23 @@ namespace SteamDroplerApi.Worker.Logic
             }
         }
 
-
-        /*public async Task<T> Execute<T>(Func<SteamMachine, T> func)
+        private async Task<List<uint>> GetOwnedGames()
         {
+            var request = new CPlayer_GetOwnedGames_Request()  {
+                steamid = _client.SteamID!,
+                include_appinfo = false,
+                include_free_sub = true,
+                include_played_free_games = true,
+                skip_unvetted_apps = false,
+            };
 
-            var res = await _loginHandler.Login(SteamServerList.GetServerRecord());
+            var response = await _playerService.SendMessage(x => x.GetOwnedGames(request));
 
-            if (res == EResult.OK)
-            {
-                var ret = func(this);
-                LogOf();
-                return ret;
-            }
-            LogOf();
-            return default(T);
-        }*/
+            var body = response.GetDeserializedResponse<CPlayer_GetOwnedGames_Response>();
+            var appIds = body.games.Select(t => (uint)t.appid).ToList();
+            await _accountTracker.UpdateOwnedApps(appIds);
+            return appIds;
+        }
 
         private async Task LogOf()
         {
@@ -118,19 +133,31 @@ namespace SteamDroplerApi.Worker.Logic
         }
 
 
-        /*private async Task AddFreeLicense(List<uint> gamesIds)
+        public async Task AddFreeLicenseApp(List<uint> gamesIds)
         {
-            var result = await _steamApps.RequestFreeLicense(gamesIds);
-            Console.WriteLine($"GrantedApps: {string.Join(",", result.GrantedApps)}");
-        }*/
+            await _steamApps.RequestFreeLicense(gamesIds);
+            await GetOwnedGames();
+        }
 
+        public async Task AddFreeLicensePackage(uint gamesId)
+        {
+            if (_steamWebHandler != null)
+            {
+                await _steamWebHandler.TryAddFreeLicensePackage(gamesId);
+                await GetOwnedGames();
+            }
+        }
 
-        private async Task CheckTimeItemsList(List<DropConfig> configs)
+        private async Task CheckTimeItemsList(List<DropConfig> configs, List<uint> possibleGames)
         {
             Console.WriteLine("TryDrop: " + DateTime.Now.ToShortTimeString());
 
             foreach (var config in configs)
             {
+                if (possibleGames.Contains(config.GameId))
+                {
+                    continue;
+                }
                 foreach (var itemId in config.DropItemIds)
                 {
                     var reqkf = new CInventory_ConsumePlaytime_Request

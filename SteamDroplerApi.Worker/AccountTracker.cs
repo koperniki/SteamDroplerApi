@@ -41,8 +41,16 @@ public class AccountTracker(Account account, HubConnection connection)
         await connection.InvokeAsync("ItemDropped", resultItemJson);
     }
     
+    public async Task UpdateOwnedApps(List<uint> appIds)
+    {
+        Account.RunConfig.OwnedApps = appIds;
+        await Save();
+    }
+    
     private async Task Save()
     {
         await connection.InvokeAsync("Save", Account);
     }
+
+    
 }
