@@ -30,6 +30,13 @@ public class AccountTracker(Account account, HubConnection connection)
         Account.RunConfig.Token = refreshToken;
         await Save();
     }
+    
+    public async Task ResetLicensesToAdd()
+    {
+        Account.RunConfig.AppsToAdd.Clear();
+        Account.RunConfig.PackagesToAdd.Clear();
+        await Save();
+    }
 
     public async Task Plays()
     {

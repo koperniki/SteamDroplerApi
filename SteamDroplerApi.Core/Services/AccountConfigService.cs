@@ -57,7 +57,6 @@ public class AccountConfigService
 
     private async Task<Account> ReadAccount(FileInfo fileInfo)
     {
-
         var name = Path.GetFileNameWithoutExtension(fileInfo.Name);
         var data = await File.ReadAllTextAsync(fileInfo.FullName);
         var account = JsonConvert.DeserializeObject<AccountConfig>(data)!;
@@ -69,7 +68,7 @@ public class AccountConfigService
             var runData = await File.ReadAllTextAsync(fileInfo.FullName);
             runConfig = JsonConvert.DeserializeObject<AccountRunConfig>(runData) ?? new AccountRunConfig();
         }
-        
+
         return new Account(name, account, runConfig);
     }
 
@@ -78,5 +77,23 @@ public class AccountConfigService
         var runDirectory = new DirectoryInfo(AccountRunConfigPath);
         var file = Path.Combine(runDirectory.FullName, $"{account.Name}.json");
         await File.WriteAllTextAsync(file, JsonConvert.SerializeObject(account.RunConfig, Formatting.Indented));
+    }
+
+    public async Task AddApps(List<uint> apps)
+    {
+        foreach (var account in _accounts)
+        {
+            account.RunConfig.AppsToAdd = account.RunConfig.AppsToAdd.Union(apps).ToList();
+            await SaveRunAccountConfig(account);
+        }
+    }
+
+    public async Task AddPackage(uint packageId)
+    {
+        foreach (var account in _accounts)
+        {
+            account.RunConfig.PackagesToAdd = account.RunConfig.PackagesToAdd.Union(new[] { packageId }).ToList();
+            await SaveRunAccountConfig(account);
+        }
     }
 }

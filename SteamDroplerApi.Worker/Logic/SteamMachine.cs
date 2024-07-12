@@ -85,6 +85,15 @@ namespace SteamDroplerApi.Worker.Logic
 
                 if (res == EResult.OK)
                 {
+
+                    await AddFreeLicenseApp(_accountTracker.Account.RunConfig.AppsToAdd);
+                    foreach (var packageId in _accountTracker.Account.RunConfig.PackagesToAdd)
+                    {
+                        await AddFreeLicensePackage(packageId);
+                    }
+
+                    await _accountTracker.ResetLicensesToAdd();
+                    
                     var appIds = _mainConfig.DropConfig.Select(t => t.GameId).Distinct().ToList();
                     while (!token.IsCancellationRequested)
                     {
@@ -135,6 +144,10 @@ namespace SteamDroplerApi.Worker.Logic
 
         public async Task AddFreeLicenseApp(List<uint> gamesIds)
         {
+            if (!gamesIds.Any())
+            {
+                return;
+            }
             await _steamApps.RequestFreeLicense(gamesIds);
             await GetOwnedGames();
         }

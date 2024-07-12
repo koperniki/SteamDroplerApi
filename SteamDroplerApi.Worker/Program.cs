@@ -23,7 +23,7 @@ SteamMachine? machine = null;
 connection.On<int, Account, MainConfig>("Start", (serverRecordMod, account, mainConfig) =>
 {
     var tracker = new AccountTracker(account, connection);
-    
+
     machine = new SteamMachine(tracker, serverRecordMod, mainConfig);
     machine.Start();
 });
@@ -34,7 +34,24 @@ connection.On("Exit", async () =>
     {
         await machine.StopAsync();
     }
+
     exitEvent.Set();
+});
+
+connection.On<List<uint>>("AddApps", async (ids) =>
+{
+    if (machine != null)
+    {
+        await machine.AddFreeLicenseApp(ids);
+    }
+});
+
+connection.On<uint>("AddPackage", async (id) =>
+{
+    if (machine != null)
+    {
+        await machine.AddFreeLicensePackage(id);
+    }
 });
 
 connection.Closed += async (_) =>
@@ -43,6 +60,7 @@ connection.Closed += async (_) =>
     {
         await machine.StopAsync();
     }
+
     exitEvent.Set();
 };
 

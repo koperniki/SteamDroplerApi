@@ -10,6 +10,8 @@ public class AccountRunConfig
     public string? ErrorReason { get; set; }
     public DateTime? UpdateTime { get; set; }
     public List<uint> OwnedApps { get; set; } = new List<uint>();
+    public List<uint> AppsToAdd { get; set; } = new List<uint>();
+    public List<uint> PackagesToAdd { get; set; } = new List<uint>();
 }
 
 

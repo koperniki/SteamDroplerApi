@@ -23,12 +23,14 @@ builder.Services.AddSingleton<WorkerService>();
 builder.Services.AddSingleton<DropService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllers();
 
 
 var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
+app.MapControllers();
 app.MapHub<WorkerHub>("worker");
 
 try
