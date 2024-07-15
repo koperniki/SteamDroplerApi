@@ -167,7 +167,7 @@ namespace SteamDroplerApi.Worker.Logic
 
             foreach (var config in configs)
             {
-                if (possibleGames.Contains(config.GameId))
+                if (!possibleGames.Contains(config.GameId))
                 {
                     continue;
                 }
@@ -178,6 +178,8 @@ namespace SteamDroplerApi.Worker.Logic
                         appid = config.GameId,
                         itemdefid = itemId
                     };
+                    
+                    Console.WriteLine("TryDrop itemId: " + itemId);
                     var response = await _inventoryService.SendMessage(x => x.ConsumePlaytime(reqkf));
                     var result = response.GetDeserializedResponse<CInventory_Response>();
                     if (result.item_json != "[]")
@@ -205,6 +207,7 @@ namespace SteamDroplerApi.Worker.Logic
 
             foreach (var gameId in gamesIds)
             {
+                Console.WriteLine("PlayGames gameId: " + gameId);
                 games.Body.games_played.Add(new CMsgClientGamesPlayed.GamePlayed
                 {
                     game_id = new GameID(gameId),
