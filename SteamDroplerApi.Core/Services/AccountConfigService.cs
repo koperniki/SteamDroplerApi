@@ -65,7 +65,7 @@ public class AccountConfigService
         var runConfig = new AccountRunConfig();
         if (runConfigFile.Exists)
         {
-            var runData = await File.ReadAllTextAsync(fileInfo.FullName);
+            var runData = await File.ReadAllTextAsync(runConfigFile.FullName);
             runConfig = JsonConvert.DeserializeObject<AccountRunConfig>(runData) ?? new AccountRunConfig();
         }
 
