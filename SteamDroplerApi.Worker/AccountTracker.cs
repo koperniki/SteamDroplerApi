@@ -54,10 +54,16 @@ public class AccountTracker(Account account, HubConnection connection)
         await Save();
     }
     
+    public async Task Disconnected()
+    {
+        await connection.InvokeAsync("Disconnected", Account);
+    }
+    
     private async Task Save()
     {
         await connection.InvokeAsync("Save", Account);
     }
+
 
     
 }

@@ -1,4 +1,5 @@
-﻿using SteamDroplerApi.Core.Models;
+﻿using Newtonsoft.Json;
+using SteamDroplerApi.Core.Models;
 
 namespace SteamDroplerApi.Core.Services;
 
@@ -14,7 +15,26 @@ public class DropService
 
     public Task StoreDropResult(Account account, string dropResult)
     {
-        _logger.LogInformation("Drop on account {account}: {drop}", account.Name, dropResult);
+        try
+        {
+            var items = JsonConvert.DeserializeObject<List<DropResult>>(dropResult);
+            if (items != null)
+            {
+                foreach (var item in items)
+                {
+                    _logger.LogInformation("Drop on account {account}: appId {appId} itemDefId {itemDefId}", account.Name,
+                        item.AppId, item.ItemDefId);
+                }
+            }
+            
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+     
+        _logger.LogTrace("Drop on account {account}: {drop}", account.Name, dropResult);
         return Task.CompletedTask;
     }
 }

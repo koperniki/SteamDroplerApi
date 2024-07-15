@@ -112,7 +112,7 @@ namespace SteamDroplerApi.Worker.Logic
             }
             catch (Exception e)
             {
-                await _accountTracker.ExitWithError(e.Message);
+                await _accountTracker.ExitWithError($"{e.Message} {e.StackTrace} {e.InnerException?.Message} {e.InnerException?.StackTrace}");
             }
         }
 

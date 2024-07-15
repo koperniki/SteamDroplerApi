@@ -112,8 +112,9 @@ namespace SteamDroplerApi.Worker.Logic
         }
 
 
-        void OnDisconnected(SteamClient.DisconnectedCallback callback)
+        async void OnDisconnected(SteamClient.DisconnectedCallback callback)
         {
+            await _accountTracker.Disconnected();
             Console.WriteLine("Disconnected from Steam");
         }
 

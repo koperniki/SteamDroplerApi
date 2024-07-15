@@ -90,6 +90,17 @@ public class WorkerHub(
         }
     }
 
+    public async Task Disconnected()
+    {
+        var account = await GetAccount();
+        if (account != null)
+        {
+            logger.LogInformation("Account {account} disconnected...try restart", account.Name);
+            await Clients.Client(Context.ConnectionId).Stop();
+            await workerService.Reload(GetWorkerId()!);
+        }
+    }
+    
     public async Task Save(Account newAccountData)
     {
         var account = await GetAccount();
