@@ -10,14 +10,14 @@ public class AccountTracker(Account account, HubConnection connection)
 
     public async Task LoginWithError(string eMessage)
     {
-        await connection.InvokeAsync("LoginWithError", eMessage);
+        await SafeExecute(async () => await connection.InvokeAsync("LoginWithError", eMessage));
     }
 
     public async Task ExitWithError(string eMessage)
     {
-        await connection.InvokeAsync("ExitWithError", eMessage);
+        await SafeExecute(async () => await connection.InvokeAsync("ExitWithError", eMessage));
     }
-    
+
     public async Task TokenExpired()
     {
         Account.RunConfig.Token = null;
@@ -30,7 +30,7 @@ public class AccountTracker(Account account, HubConnection connection)
         Account.RunConfig.Token = refreshToken;
         await Save();
     }
-    
+
     public async Task ResetLicensesToAdd()
     {
         Account.RunConfig.AppsToAdd.Clear();
@@ -40,30 +40,39 @@ public class AccountTracker(Account account, HubConnection connection)
 
     public async Task Plays()
     {
-        await connection.InvokeAsync("Plays");
+        await SafeExecute(async () => await connection.InvokeAsync("Plays"));
     }
 
     public async Task ItemDropped(string resultItemJson)
     {
-        await connection.InvokeAsync("ItemDropped", resultItemJson);
+        await SafeExecute(async () => await connection.InvokeAsync("ItemDropped", resultItemJson));
     }
-    
+
     public async Task UpdateOwnedApps(List<uint> appIds)
     {
         Account.RunConfig.OwnedApps = appIds;
         await Save();
     }
-    
+
     public async Task Disconnected()
     {
-        await connection.InvokeAsync("Disconnected", Account);
+        await SafeExecute(async () => await connection.InvokeAsync("Disconnected", Account));
     }
-    
+
     private async Task Save()
     {
-        await connection.InvokeAsync("Save", Account);
+        await SafeExecute(async () => await connection.InvokeAsync("Save", Account));
     }
 
-
-    
+    private async Task SafeExecute(Func<Task> func)
+    {
+        try
+        {
+            await func();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
 }

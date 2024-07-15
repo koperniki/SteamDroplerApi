@@ -67,9 +67,11 @@ namespace SteamDroplerApi.Worker.Logic
         {
             if (_task != null)
             {
+                await _tokenSource.CancelAsync();
                 await _task;
+                Console.WriteLine("task stoped");
             }
-
+           
             await LogOf();
         }
 
@@ -93,7 +95,7 @@ namespace SteamDroplerApi.Worker.Logic
                     }
 
                     await _accountTracker.ResetLicensesToAdd();
-                    
+
                     var appIds = _mainConfig.DropConfig.Select(t => t.GameId).Distinct().ToList();
                     while (!token.IsCancellationRequested)
                     {
@@ -104,14 +106,20 @@ namespace SteamDroplerApi.Worker.Logic
                             await PlayGames(possibleGames);
                             await CheckTimeItemsList(_mainConfig.DropConfig, possibleGames);
                         }
-                       
+
                         await Task.Delay(1000 * 60 * 30, token);
                     }
+
                     StopGame();
                 }
             }
+            catch (TaskCanceledException)
+            {
+                //
+            }
             catch (Exception e)
             {
+                Console.WriteLine(e);
                 await _accountTracker.ExitWithError($"{e.Message} {e.StackTrace} {e.InnerException?.Message} {e.InnerException?.StackTrace}");
             }
         }
@@ -136,7 +144,6 @@ namespace SteamDroplerApi.Worker.Logic
 
         private async Task LogOf()
         {
-            await Task.Delay(5000);
             _work = false;
             _client.Disconnect();
         }

@@ -28,10 +28,9 @@ public class DropService
             }
             
         }
-        catch (Exception e)
+        catch
         {
-            Console.WriteLine(e);
-            throw;
+            //
         }
      
         _logger.LogTrace("Drop on account {account}: {drop}", account.Name, dropResult);

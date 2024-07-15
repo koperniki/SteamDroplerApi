@@ -12,7 +12,6 @@ var workerId = args.First();
 var exitEvent = new ManualResetEvent(false);
 var connection = new HubConnectionBuilder()
     .WithUrl("http://localhost:7832/worker", options => options.Headers.Add("workerId", workerId))
-    .WithAutomaticReconnect()
     .Build();
 
 await connection.StartAsync();
@@ -56,8 +55,10 @@ connection.On<uint>("AddPackage", async (id) =>
 
 connection.Closed += async (_) =>
 {
+    Console.WriteLine("Closed");
     if (machine != null)
     {
+        Console.WriteLine("machine try stopped");
         await machine.StopAsync();
     }
 
@@ -65,4 +66,5 @@ connection.Closed += async (_) =>
 };
 
 exitEvent.WaitOne();
+Console.WriteLine("try stop connection");
 await connection.StopAsync();

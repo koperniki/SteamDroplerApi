@@ -37,10 +37,10 @@ public class WorkerHub(
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         var workerId = GetWorkerId();
-        if (workerId != null)
+        var account = await GetAccount();
+        if (workerId != null && account != null)
         {
-            var account = await GetAccount();
-            logger.LogWarning("Account {account} disconnected. Try to restart", account?.Name);
+           logger.LogWarning("Account {account} disconnected. Try to restart", account?.Name);
             await workerService.Reload(workerId);
         }
     }
@@ -113,6 +113,8 @@ public class WorkerHub(
             account.RunConfig.LoginErrorReason = newAccountData.RunConfig.LoginErrorReason;
             account.RunConfig.LastErrorTime = newAccountData.RunConfig.LastErrorTime;
             account.RunConfig.ErrorReason = newAccountData.RunConfig.ErrorReason;
+            account.RunConfig.PackagesToAdd = newAccountData.RunConfig.PackagesToAdd;
+            account.RunConfig.AppsToAdd = newAccountData.RunConfig.AppsToAdd;
             
             var appDiffs = account.RunConfig.OwnedApps.Any()
                 ? account.RunConfig.OwnedApps.Except(newAccountData.RunConfig.OwnedApps).ToList()
