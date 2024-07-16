@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using Microsoft.AspNetCore.SignalR.Client;
+using Serilog;
 using SteamDroplerApi.Core.Configs;
 using SteamDroplerApi.Core.Models;
 using SteamDroplerApi.Worker;
@@ -21,6 +22,15 @@ SteamMachine? machine = null;
 
 connection.On<int, Account, MainConfig>("Start", (serverRecordMod, account, mainConfig) =>
 {
+
+    var builder = new LoggerConfiguration()
+        .WriteTo.Console();
+    if (mainConfig.LogWorker)
+    {
+        builder.WriteTo.File($"./logs/{account.Name}.log.txt", rollingInterval: RollingInterval.Day);
+    }
+    Log.Logger = builder.CreateLogger();
+    
     var tracker = new AccountTracker(account, connection);
 
     machine = new SteamMachine(tracker, serverRecordMod, mainConfig);
@@ -39,6 +49,7 @@ connection.On("Exit", async () =>
 
 connection.On<List<uint>>("AddApps", async (ids) =>
 {
+    Log.Logger.Information("Try to add apps {ids}", ids);
     if (machine != null)
     {
         await machine.AddFreeLicenseApp(ids);
@@ -47,6 +58,7 @@ connection.On<List<uint>>("AddApps", async (ids) =>
 
 connection.On<uint>("AddPackage", async (id) =>
 {
+    Log.Logger.Information("Try to add package {id}", id);
     if (machine != null)
     {
         await machine.AddFreeLicensePackage(id);
@@ -55,10 +67,10 @@ connection.On<uint>("AddPackage", async (id) =>
 
 connection.Closed += async (_) =>
 {
-    Console.WriteLine("Closed");
+    Log.Logger.Warning("Connection closed");
     if (machine != null)
     {
-        Console.WriteLine("machine try stopped");
+        Log.Logger.Information("Try to stop steam machine");
         await machine.StopAsync();
     }
 
@@ -66,5 +78,5 @@ connection.Closed += async (_) =>
 };
 
 exitEvent.WaitOne();
-Console.WriteLine("try stop connection");
+Log.Logger.Information("Try to stop signalr connection");
 await connection.StopAsync();

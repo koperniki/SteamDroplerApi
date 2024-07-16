@@ -1,4 +1,5 @@
-﻿using SteamDroplerApi.Core.Configs;
+﻿using Serilog;
+using SteamDroplerApi.Core.Configs;
 using SteamDroplerApi.Core.Models;
 using SteamDroplerApi.Worker.Logic.Auth;
 using SteamKit2;
@@ -47,7 +48,7 @@ namespace SteamDroplerApi.Worker.Logic
 
         async void OnConnected(SteamClient.ConnectedCallback callback)
         {
-            Console.Write("Connected to Steam! Logging in '{0}'...", _steamAccount.Name);
+            Log.Logger.Information("Connected to Steam! Logging in '{name}'...", _steamAccount.Name);
             if (_steamAccount.RunConfig.Token != null)
             {
                 _refreshToken = _steamAccount.RunConfig.Token;
@@ -105,7 +106,7 @@ namespace SteamDroplerApi.Worker.Logic
                 catch (Exception e)
                 {
                     await _accountTracker.LoginWithError(e.Message);
-                    Console.WriteLine(e.Message);
+                    Log.Logger.Error(e, "Error while loggining");
                     _loginTcs?.TrySetResult(EResult.UnexpectedError);
                 }
             }
@@ -116,12 +117,12 @@ namespace SteamDroplerApi.Worker.Logic
         {
             await _accountTracker.Disconnected();
             _loginTcs.TrySetResult(EResult.UnexpectedError);
-            Console.WriteLine("Disconnected from Steam");
+            Log.Logger.Information("Disconnected from Steam");
         }
 
         async void OnLoggedOn(SteamUser.LoggedOnCallback callback)
         {
-            Console.WriteLine(callback.Result);
+            Log.Logger.Information("OnLoggedOn with result {result}", callback.Result);
 
             _tryLoginCount++;
             if (_tryLoginCount > 5)
@@ -135,19 +136,20 @@ namespace SteamDroplerApi.Worker.Logic
                 {
                     await _accountTracker.TokenExpired();
                 }
-
-                Console.WriteLine("Unable to logon to Steam: {0} / {1}", callback.Result, callback.ExtendedResult);
+                Log.Logger.Warning("Unable to logon to Steam: {result} / {extResult}", callback.Result, callback.ExtendedResult);
+          
                 return;
             }
 
             WebApiNonce = callback.WebAPIUserNonce;
             await _accountTracker.LoggedIn(_client.SteamID!, _refreshToken!);
+            Log.Logger.Information("Successful login");
             _loginTcs?.TrySetResult(callback.Result);
         }
 
         void OnLoggedOff(SteamUser.LoggedOffCallback callback)
         {
-            Console.WriteLine("Logged off of Steam: {0}", callback.Result);
+            Log.Logger.Warning("Logged off of Steam: {result}", callback.Result);
         }
     }
 }

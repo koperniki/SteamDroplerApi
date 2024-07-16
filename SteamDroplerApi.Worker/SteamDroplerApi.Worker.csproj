@@ -11,13 +11,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.6" />
-      <PackageReference Include="RestSharp" Version="111.3.0" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.6"/>
+        <PackageReference Include="RestSharp" Version="111.3.0"/>
+        <PackageReference Include="Serilog" Version="4.0.0"/>
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0"/>
+        <PackageReference Include="Serilog.Sinks.File" Version="5.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SteamDroplerApi.Core\SteamDroplerApi.Core.csproj" />
-      <ProjectReference Include="..\SteamKit\SteamKit2\SteamKit2\SteamKit2.csproj" />
+        <ProjectReference Include="..\SteamDroplerApi.Core\SteamDroplerApi.Core.csproj"/>
+        <ProjectReference Include="..\SteamKit\SteamKit2\SteamKit2\SteamKit2.csproj"/>
     </ItemGroup>
 
 </Project>

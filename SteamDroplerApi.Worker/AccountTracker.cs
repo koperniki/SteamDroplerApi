@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Serilog;
 using SteamDroplerApi.Core.Models;
 
 namespace SteamDroplerApi.Worker;
@@ -72,7 +73,10 @@ public class AccountTracker(Account account, HubConnection connection)
         }
         catch (Exception e)
         {
+            Log.Logger.Error(e, "Error while notify host");
             Console.WriteLine(e);
         }
     }
+
+    
 }
