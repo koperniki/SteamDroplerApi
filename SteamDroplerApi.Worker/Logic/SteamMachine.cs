@@ -88,7 +88,7 @@ namespace SteamDroplerApi.Worker.Logic
                     {
                         Log.Logger.Information("Try to get owned apps");
                         var ownedGames = await GetOwnedGames();
-                        var possibleGames = ownedGames.Intersect(appIds).ToList();
+                        var possibleGames = ownedGames == null ? appIds : ownedGames.Intersect(appIds).ToList();
                         Log.Logger.Information("Possible games [{games}]", possibleGames);
                         if (possibleGames.Any())
                         {
@@ -102,19 +102,20 @@ namespace SteamDroplerApi.Worker.Logic
                     StopGame();
                 }
             }
-            catch (TaskCanceledException)
+            catch (TaskCanceledException e)
             {
+                Log.Logger.Error(e, "Error while EasyIdling as timout");
                 Log.Logger.Information("Exit without waiting");
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Log.Logger.Error(e, "Error while EasyIdling");
                 await _accountTracker.ExitWithError(
                     $"{e.Message} {e.StackTrace} {e.InnerException?.Message} {e.InnerException?.StackTrace}");
             }
         }
 
-        private async Task<List<uint>> GetOwnedGames()
+        public async Task<List<uint>?> GetOwnedGames()
         {
             var request = new CPlayer_GetOwnedGames_Request()
             {
@@ -124,14 +125,21 @@ namespace SteamDroplerApi.Worker.Logic
                 include_played_free_games = true,
                 skip_unvetted_apps = false,
             };
+            try
+            {
+                var response = await _playerService.SendMessage(x => x.GetOwnedGames(request)).ToLongRunningTask();
 
-            var response = await _playerService.SendMessage(x => x.GetOwnedGames(request)).ToLongRunningTask();
-
-            var body = response.GetDeserializedResponse<CPlayer_GetOwnedGames_Response>();
-            var appIds = body.games.Select(t => (uint)t.appid).ToList();
-            await _accountTracker.UpdateOwnedApps(appIds);
-            Log.Logger.Information("Got CPlayer_GetOwnedGames_Response");
-            return appIds;
+                var body = response.GetDeserializedResponse<CPlayer_GetOwnedGames_Response>();
+                var appIds = body.games.Select(t => (uint)t.appid).ToList();
+                await _accountTracker.UpdateOwnedApps(appIds);
+                Log.Logger.Information("Got CPlayer_GetOwnedGames_Response");
+                return appIds;
+            }
+            catch (Exception e)
+            {  
+                Log.Logger.Error(e, "Error while getting CPlayer_GetOwnedGames_Response");
+                return null;
+            }
         }
 
         private async Task LogOf()
@@ -149,7 +157,6 @@ namespace SteamDroplerApi.Worker.Logic
             }
 
             await _steamApps.RequestFreeLicense(gamesIds).ToLongRunningTask();
-            await GetOwnedGames();
         }
 
         public async Task AddFreeLicensePackage(uint gamesId)
@@ -157,7 +164,6 @@ namespace SteamDroplerApi.Worker.Logic
             if (_steamWebHandler != null)
             {
                 await _steamWebHandler.TryAddFreeLicensePackage(gamesId);
-                await GetOwnedGames();
             }
         }
 

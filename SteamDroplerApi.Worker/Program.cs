@@ -58,6 +58,7 @@ connection.On<List<uint>>("AddApps", async (ids) =>
     if (machine != null)
     {
         await machine.AddFreeLicenseApp(ids);
+        await machine.GetOwnedGames();
     }
 });
 
@@ -67,6 +68,7 @@ connection.On<uint>("AddPackage", async (id) =>
     if (machine != null)
     {
         await machine.AddFreeLicensePackage(id);
+        await machine.GetOwnedGames();
     }
 });
 
