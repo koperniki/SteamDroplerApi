@@ -1,7 +1,10 @@
-﻿namespace SteamDroplerApi.Worker
+﻿using SteamKit2;
+
+namespace SteamDroplerApi.Worker
 {
-	public class Util
+	public static class Util
 	{
+		private const byte TimeoutForLongRunningTasksInSeconds = 60;
 		public static long GetSystemUnixTime()
 		{
 			return (long)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
@@ -16,6 +19,16 @@
 				ret[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
 			}
 			return ret;
+		}
+		
+		public static Task<T> ToLongRunningTask<T>(this AsyncJob<T> job) where T : CallbackMsg {
+			if (job == null) {
+				throw new ArgumentNullException(nameof(job));
+			}
+
+			job.Timeout = TimeSpan.FromSeconds(TimeoutForLongRunningTasksInSeconds);
+
+			return job.ToTask();
 		}
 		
 	}

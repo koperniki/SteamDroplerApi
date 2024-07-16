@@ -116,8 +116,8 @@ namespace SteamDroplerApi.Worker.Logic
         async void OnDisconnected(SteamClient.DisconnectedCallback callback)
         {
             await _accountTracker.Disconnected();
-            _loginTcs.TrySetResult(EResult.UnexpectedError);
             Log.Logger.Information("Disconnected from Steam");
+            _loginTcs.TrySetResult(EResult.UnexpectedError);
         }
 
         async void OnLoggedOn(SteamUser.LoggedOnCallback callback)

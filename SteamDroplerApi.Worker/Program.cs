@@ -23,6 +23,11 @@ SteamMachine? machine = null;
 connection.On<int, Account, MainConfig>("Start", (serverRecordMod, account, mainConfig) =>
 {
 
+    if (machine != null)
+    {
+        Log.Logger.Warning("Try to start already started machine");
+        return;
+    }
     var builder = new LoggerConfiguration()
         .WriteTo.Console();
     if (mainConfig.LogWorker)
@@ -30,7 +35,7 @@ connection.On<int, Account, MainConfig>("Start", (serverRecordMod, account, main
         builder.WriteTo.File($"./logs/{account.Name}.log.txt", rollingInterval: RollingInterval.Day);
     }
     Log.Logger = builder.CreateLogger();
-    
+    Log.Logger.Information("Start machine");
     var tracker = new AccountTracker(account, connection);
 
     machine = new SteamMachine(tracker, serverRecordMod, mainConfig);

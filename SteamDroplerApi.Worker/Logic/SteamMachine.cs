@@ -74,6 +74,7 @@ namespace SteamDroplerApi.Worker.Logic
 
                 if (res == EResult.OK)
                 {
+                    Log.Logger.Information("Try add license apps");
                     await AddFreeLicenseApp(_accountTracker.Account.RunConfig.AppsToAdd);
                     foreach (var packageId in _accountTracker.Account.RunConfig.PackagesToAdd)
                     {
@@ -85,6 +86,7 @@ namespace SteamDroplerApi.Worker.Logic
                     var appIds = _mainConfig.DropConfig.Select(t => t.GameId).Distinct().ToList();
                     while (!token.IsCancellationRequested)
                     {
+                        Log.Logger.Information("Try to get owned apps");
                         var ownedGames = await GetOwnedGames();
                         var possibleGames = ownedGames.Intersect(appIds).ToList();
                         Log.Logger.Information("Possible games [{games}]", possibleGames);
@@ -123,7 +125,7 @@ namespace SteamDroplerApi.Worker.Logic
                 skip_unvetted_apps = false,
             };
 
-            var response = await _playerService.SendMessage(x => x.GetOwnedGames(request));
+            var response = await _playerService.SendMessage(x => x.GetOwnedGames(request)).ToLongRunningTask();
 
             var body = response.GetDeserializedResponse<CPlayer_GetOwnedGames_Response>();
             var appIds = body.games.Select(t => (uint)t.appid).ToList();
@@ -146,7 +148,7 @@ namespace SteamDroplerApi.Worker.Logic
                 return;
             }
 
-            await _steamApps.RequestFreeLicense(gamesIds);
+            await _steamApps.RequestFreeLicense(gamesIds).ToLongRunningTask();
             await GetOwnedGames();
         }
 
@@ -180,7 +182,7 @@ namespace SteamDroplerApi.Worker.Logic
                     Log.Logger.Information("Sent CInventory_ConsumePlaytime_Request: itemId: {itemId}", itemId);
                     try
                     {
-                        var response = await _inventoryService.SendMessage(x => x.ConsumePlaytime(reqkf));
+                        var response = await _inventoryService.SendMessage(x => x.ConsumePlaytime(reqkf)).ToLongRunningTask();
                         var result = response.GetDeserializedResponse<CInventory_Response>();
                         if (result.item_json != "[]")
                         {
