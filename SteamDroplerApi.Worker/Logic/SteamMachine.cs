@@ -117,6 +117,7 @@ namespace SteamDroplerApi.Worker.Logic
 
         public async Task<List<uint>?> GetOwnedGames()
         {
+            return null;
             var request = new CPlayer_GetOwnedGames_Request()
             {
                 steamid = _client.SteamID!,
