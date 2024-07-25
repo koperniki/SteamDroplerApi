@@ -1,9 +1,12 @@
-name: Build and Archive dropler
+name: Build and Archive dropler arm
 
 on:
   push:
     branches:
-      - fake
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
