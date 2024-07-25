@@ -1,0 +1,61 @@
+name: Build and Archive dropler
+
+on:
+  push:
+    branches:
+      - fake
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up .NET 8 SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore worker dependencies
+      run: dotnet restore ./SteamDroplerApi.Worker/SteamDroplerApi.Worker.csproj
+
+    - name: Build linux worker application
+      run:  dotnet build ./SteamDroplerApi.Worker/SteamDroplerApi.Worker.csproj --configuration Release --runtime linux-arm64 --no-restore --self-contained
+
+    - name: Publish linux worker application
+      run: dotnet publish ./SteamDroplerApi.Worker/SteamDroplerApi.Worker.csproj /p:DebugType=None /p:DebugSymbols=false -c Release -r linux-arm64 --no-build --no-restore -p:PublishSingleFile=true -o ./dropler-unix-arm
+    
+    - name: Build win worker application
+      run:  dotnet build ./SteamDroplerApi.Worker/SteamDroplerApi.Worker.csproj --configuration Release --runtime win-arm64 --no-restore --self-contained
+
+    - name: Publish win worker application
+      run: dotnet publish ./SteamDroplerApi.Worker/SteamDroplerApi.Worker.csproj /p:DebugType=None /p:DebugSymbols=false -c Release -r win-arm64 --no-build --no-restore -p:PublishSingleFile=true -o ./dropler-win-arm
+
+    - name: Restore api dependencies
+      run: dotnet restore ./SteamDroplerApi/SteamDroplerApi.csproj
+
+    - name: Build linux api application
+      run:  dotnet build ./SteamDroplerApi/SteamDroplerApi.csproj --configuration Release --runtime linux-arm64 --no-restore --self-contained
+
+    - name: Publish linux api application
+      run: dotnet publish ./SteamDroplerApi/SteamDroplerApi.csproj /p:DebugType=None /p:DebugSymbols=false -c Release -r linux-arm64  --no-build --no-restore -p:PublishSingleFile=true -o ./dropler-unix-arm
+
+    - name: Build win api application
+      run:  dotnet build ./SteamDroplerApi/SteamDroplerApi.csproj --configuration Release --runtime win-arm64 --no-restore --self-contained
+
+    - name: Publish win api application
+      run: dotnet publish ./SteamDroplerApi/SteamDroplerApi.csproj /p:DebugType=None /p:DebugSymbols=false -c Release -r win-arm64  --no-build --no-restore -p:PublishSingleFile=true -o ./dropler-win-arm
+
+    - name: Upload artifacts unix
+      uses: actions/upload-artifact@v3
+      with:
+        name: dropler-unix-arm
+        path: ./dropler-unix-arm
+      
+    - name: Upload artifacts win
+      uses: actions/upload-artifact@v3
+      with:
+        name: dropler-win-arm
+        path: ./dropler-win-arm
