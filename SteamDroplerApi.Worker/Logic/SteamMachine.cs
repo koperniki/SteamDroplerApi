@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using System.Collections;
+using Serilog;
 using SteamDroplerApi.Core.Configs;
 using SteamKit2;
 using SteamKit2.Discovery;
@@ -25,7 +26,9 @@ namespace SteamDroplerApi.Worker.Logic
         public SteamMachine(AccountTracker accountTracker, int serverRecordMod, MainConfig mainConfig)
         {
             _client = new SteamClient();
-            var records = (SteamDirectory.LoadAsync(_client.Configuration).Result).ToList();
+            var records = (SteamDirectory.LoadAsync(_client.Configuration).Result)
+                .Where(t => t.ProtocolTypes.HasFlag(ProtocolTypes.Tcp))
+                .OrderBy(t => t.EndPoint).ToList();
             var recordIndex = (records.Count - 1) % serverRecordMod;
             var manager = new CallbackManager(_client);
             var steamUnifiedMessages = _client.GetHandler<SteamUnifiedMessages>()!;
@@ -83,21 +86,11 @@ namespace SteamDroplerApi.Worker.Logic
 
                     await _accountTracker.ResetLicensesToAdd();
 
-                    var appIds = _mainConfig.DropConfig.Select(t => t.GameId).Distinct().ToList();
-                    while (!token.IsCancellationRequested)
-                    {
-                        Log.Logger.Information("Try to get owned apps");
-                        var ownedGames = await GetOwnedGames();
-                        var possibleGames = ownedGames == null ? appIds : ownedGames.Intersect(appIds).ToList();
-                        Log.Logger.Information("Possible games [{games}]", possibleGames);
-                        if (possibleGames.Any())
-                        {
-                            await PlayGames(possibleGames);
-                            await CheckTimeItemsList(_mainConfig.DropConfig, possibleGames);
-                        }
+                    var playTask = PlayTask(token);
+                    var dropTask = DropTask(token, _mainConfig.DropConfig);
 
-                        await Task.Delay(1000 * 60 * 30, token);
-                    }
+                    await playTask;
+                    await dropTask;
 
                     StopGame();
                 }
@@ -115,33 +108,33 @@ namespace SteamDroplerApi.Worker.Logic
             }
         }
 
-        public async Task<List<uint>?> GetOwnedGames()
-        {
-            return null;
-            var request = new CPlayer_GetOwnedGames_Request()
-            {
-                steamid = _client.SteamID!,
-                include_appinfo = false,
-                include_free_sub = true,
-                include_played_free_games = true,
-                skip_unvetted_apps = false,
-            };
-            try
-            {
-                var response = await _playerService.SendMessage(x => x.GetOwnedGames(request)).ToLongRunningTask();
+        /* public async Task<List<uint>?> GetOwnedGames()
+         {
+             return null;
+             var request = new CPlayer_GetOwnedGames_Request()
+             {
+                 steamid = _client.SteamID!,
+                 include_appinfo = false,
+                 include_free_sub = true,
+                 include_played_free_games = true,
+                 skip_unvetted_apps = false,
+             };
+             try
+             {
+                 var response = await _playerService.SendMessage(x => x.GetOwnedGames(request)).ToLongRunningTask();
 
-                var body = response.GetDeserializedResponse<CPlayer_GetOwnedGames_Response>();
-                var appIds = body.games.Select(t => (uint)t.appid).ToList();
-                await _accountTracker.UpdateOwnedApps(appIds);
-                Log.Logger.Information("Got CPlayer_GetOwnedGames_Response");
-                return appIds;
-            }
-            catch (Exception e)
-            {  
-                Log.Logger.Error(e, "Error while getting CPlayer_GetOwnedGames_Response");
-                return null;
-            }
-        }
+                 var body = response.GetDeserializedResponse<CPlayer_GetOwnedGames_Response>();
+                 var appIds = body.games.Select(t => (uint)t.appid).ToList();
+                 await _accountTracker.UpdateOwnedApps(appIds);
+                 Log.Logger.Information("Got CPlayer_GetOwnedGames_Response");
+                 return appIds;
+             }
+             catch (Exception e)
+             {
+                 Log.Logger.Error(e, "Error while getting CPlayer_GetOwnedGames_Response");
+                 return null;
+             }
+         }*/
 
         private async Task LogOf()
         {
@@ -152,58 +145,154 @@ namespace SteamDroplerApi.Worker.Logic
 
         public async Task AddFreeLicenseApp(List<uint> gamesIds)
         {
-            if (!gamesIds.Any())
+            try
             {
-                return;
-            }
+                if (!gamesIds.Any())
+                {
+                    return;
+                }
 
-            await _steamApps.RequestFreeLicense(gamesIds).ToLongRunningTask();
+                await _steamApps.RequestFreeLicense(gamesIds).ToLongRunningTask();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Error while AddFreeLicenseApp");
+            }
         }
 
         public async Task AddFreeLicensePackage(uint gamesId)
         {
-            if (_steamWebHandler != null)
+            try
             {
-                await _steamWebHandler.TryAddFreeLicensePackage(gamesId);
+                if (_steamWebHandler != null)
+                {
+                    await _steamWebHandler.TryAddFreeLicensePackage(gamesId);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Error while AddFreeLicensePackage");
             }
         }
 
-        private async Task CheckTimeItemsList(List<DropConfig> configs, List<uint> possibleGames)
+
+        private async Task PlayTask(CancellationToken token)
         {
-            Console.WriteLine("TryDrop: " + DateTime.Now.ToShortTimeString());
-
-            foreach (var config in configs)
+            var appIds = _mainConfig.DropConfig.Select(t => t.GameId).Distinct().ToList();
+            Log.Logger.Information("Possible games [{games}]", appIds);
+            var queueList = new Queue<uint>(appIds);
+            while (!token.IsCancellationRequested)
             {
-                if (!possibleGames.Contains(config.GameId))
-                {
-                    continue;
-                }
+                await PlayGames(queueList.ToList());
+                var lastItem = queueList.Dequeue();
+                queueList.Enqueue(lastItem);
 
-                foreach (var itemId in config.DropItemIds)
+                await Task.Delay(1000 * 60 * 2, token);
+            }
+        }
+
+        private async Task DropTask(CancellationToken token, List<DropConfig> configs)
+        {
+            try
+            {
+                while (!token.IsCancellationRequested)
                 {
-                    var reqkf = new CInventory_ConsumePlaytime_Request
+                    foreach (var config in configs)
                     {
-                        appid = config.GameId,
-                        itemdefid = itemId
-                    };
-                    Log.Logger.Information("Sent CInventory_ConsumePlaytime_Request: itemId: {itemId}", itemId);
-                    try
-                    {
-                        var response = await _inventoryService.SendMessage(x => x.ConsumePlaytime(reqkf)).ToLongRunningTask();
-                        var result = response.GetDeserializedResponse<CInventory_Response>();
-                        if (result.item_json != "[]")
+                        if (token.IsCancellationRequested)
                         {
-                            Log.Logger.Information("ItemDropped: {result}", result.item_json);
-                            await _accountTracker.ItemDropped(result.item_json);
+                            return;
+                        }
+
+                        foreach (var itemId in config.DropItemIds)
+                        {
+                            await TryDropItem(token, config.GameId, itemId);
+                            await Task.Delay(1_000, token);
                         }
                     }
-                    catch (Exception e)
-                    {
-                        Log.Logger.Error(e, "Error while sending CInventory_ConsumePlaytime_Request");
-                    }
                 }
             }
+            catch
+            {
+                //
+            }
         }
+
+        private async Task TryDropItem(CancellationToken token, uint gameId, uint itemId)
+        {
+            var executed = false;
+            do
+            {
+                if (token.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                var reqkf = new CInventory_ConsumePlaytime_Request
+                {
+                    appid = gameId,
+                    itemdefid = itemId
+                };
+                Log.Logger.Information("Sent CInventory_ConsumePlaytime_Request: gameId: {gameId} itemId: {itemId}",
+                    gameId, itemId);
+                try
+                {
+                    var response = await _inventoryService.SendMessage(x => x.ConsumePlaytime(reqkf))
+                        .ToLongRunningTask();
+                    var result = response.GetDeserializedResponse<CInventory_Response>();
+                    if (result.item_json != "[]")
+                    {
+                        Log.Logger.Information("ItemDropped: {result}", result.item_json);
+                        await _accountTracker.ItemDropped(result.item_json);
+                    }
+
+                    executed = true;
+                }
+                catch (Exception e)
+                {
+                    Log.Logger.Error(e, "Error while sending CInventory_ConsumePlaytime_Request");
+                    await Task.Delay(5_000, token);
+                }
+            } while (!executed);
+        }
+
+        /* private async Task CheckTimeItemsList(List<DropConfig> configs, List<uint> possibleGames)
+         {
+             Console.WriteLine("TryDrop: " + DateTime.Now.ToShortTimeString());
+
+             foreach (var config in configs)
+             {
+                 if (!possibleGames.Contains(config.GameId))
+                 {
+                     continue;
+                 }
+
+                 foreach (var itemId in config.DropItemIds)
+                 {
+                     var reqkf = new CInventory_ConsumePlaytime_Request
+                     {
+                         appid = config.GameId,
+                         itemdefid = itemId
+                     };
+                     Log.Logger.Information("Sent CInventory_ConsumePlaytime_Request: gameId: {gameId} itemId: {itemId}", config.GameId, itemId);
+                     try
+                     {
+                         var response = await _inventoryService.SendMessage(x => x.ConsumePlaytime(reqkf))
+                             .ToLongRunningTask();
+                         var result = response.GetDeserializedResponse<CInventory_Response>();
+                         if (result.item_json != "[]")
+                         {
+                             Log.Logger.Information("ItemDropped: {result}", result.item_json);
+                             await _accountTracker.ItemDropped(result.item_json);
+                         }
+                     }
+                     catch (Exception e)
+                     {
+                         Log.Logger.Error(e, "Error while sending CInventory_ConsumePlaytime_Request");
+                     }
+                 }
+             }
+         }*/
 
         private void StopGame()
         {
