@@ -21,12 +21,12 @@ namespace SteamDroplerApi.Worker.Logic
         private readonly CancellationTokenSource _tokenSource;
         private Task? _task;
         private SteamWebHandler? _steamWebHandler;
+        private readonly List<uint> _skipGames;
 
 
         public SteamMachine(AccountTracker accountTracker, int serverRecordMod, MainConfig mainConfig)
         {
             _client = new SteamClient();
-
             var records = (SteamDirectory.LoadAsync(_client.Configuration).Result)
                 .Where(t => t.ProtocolTypes.HasFlag(ProtocolTypes.Tcp))
                 .OrderBy(t => t.EndPoint.GetHashCode()).ToList();
@@ -42,7 +42,7 @@ namespace SteamDroplerApi.Worker.Logic
             _mainConfig = mainConfig;
             _loginHandler = new SteamLoginHandler(accountTracker, _client, manager, _serverRecord);
             _tokenSource = new CancellationTokenSource();
-
+            _skipGames = new List<uint>();
             Task.Run(() =>
             {
                 while (_work)
@@ -199,8 +199,16 @@ namespace SteamDroplerApi.Worker.Logic
             {
                 foreach (var config in configs)
                 {
+                    if (_skipGames.Contains(config.GameId))
+                    {
+                        continue;
+                    }
                     foreach (var itemId in config.DropItemIds)
                     {
+                        if (_skipGames.Contains(config.GameId))
+                        {
+                            break;
+                        }
                         if (token.IsCancellationRequested)
                         {
                             return;
@@ -209,7 +217,7 @@ namespace SteamDroplerApi.Worker.Logic
                         try
                         {
                             await TryDropItem(token, config.GameId, itemId);
-                            await Task.Delay(3_000, token);
+                            await Task.Delay(5_000, token);
                         }
                         catch (Exception e)
                         {
@@ -241,7 +249,15 @@ namespace SteamDroplerApi.Worker.Logic
                 {
                     var response = await _inventoryService.SendMessage(x => x.ConsumePlaytime(reqkf))
                         .ToLongRunningTask();
+                   
                     var result = response.GetDeserializedResponse<CInventory_Response>();
+                    if (response.Result == EResult.Fail && !string.IsNullOrEmpty(response.ErrorMessage) && response.ErrorMessage == "User must be allowed to play game to access inventory.")
+                    {
+                        Log.Logger.Information("response result {resp} {result}", response.Result, response.ErrorMessage);
+                        await Task.Delay(5_000, token);
+                        _skipGames.Add(gameId);
+                    }
+                        
                     if (result.item_json != "[]")
                     {
                         Log.Logger.Information("ItemDropped: {result}", result.item_json);
@@ -253,8 +269,9 @@ namespace SteamDroplerApi.Worker.Logic
                 catch (Exception e)
                 {
                     Log.Logger.Error(e, "Error while sending CInventory_ConsumePlaytime_Request");
-                    await Task.Delay(5_000, token);
-                    Log.Logger.Information("try again");
+                    Log.Logger.Information("try again after wait 30 sec");
+                    await Task.Delay(30_000, token);
+                    
                 }
             } while (!executed);
         }
@@ -314,6 +331,10 @@ namespace SteamDroplerApi.Worker.Logic
 
             foreach (var gameId in gamesIds)
             {
+                if (_skipGames.Contains(gameId))
+                {
+                    continue;
+                }
                 games.Body.games_played.Add(new CMsgClientGamesPlayed.GamePlayed
                 {
                     game_id = new GameID(gameId),

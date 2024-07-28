@@ -16,6 +16,8 @@ namespace SteamKit2
         /// </summary>
         public class ServiceMethodResponse : CallbackMsg
         {
+            
+            public string ErrorMessage { get; private set; }
             /// <summary>
             /// Gets the result of the message.
             /// </summary>
@@ -49,6 +51,7 @@ namespace SteamKit2
                 var protoHeader = packetMsg.Header.Proto;
                 JobID = protoHeader.jobid_target;
                 Result = ( EResult )protoHeader.eresult;
+                ErrorMessage = protoHeader.error_message;
                 MethodName = protoHeader.target_job_name;
                 PacketMsg = packetMsg;
             }
