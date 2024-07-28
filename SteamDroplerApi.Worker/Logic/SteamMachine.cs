@@ -47,7 +47,7 @@ namespace SteamDroplerApi.Worker.Logic
             {
                 while (_work)
                 {
-                    manager.RunWaitCallbacks(TimeSpan.FromSeconds(1));
+                    manager.RunWaitCallbacks(TimeSpan.FromSeconds(0.2));
                 }
             });
         }
@@ -195,28 +195,28 @@ namespace SteamDroplerApi.Worker.Logic
 
         private async Task DropTask(CancellationToken token, List<DropConfig> configs)
         {
-            try
+            while (!token.IsCancellationRequested)
             {
-                while (!token.IsCancellationRequested)
+                foreach (var config in configs)
                 {
-                    foreach (var config in configs)
+                    foreach (var itemId in config.DropItemIds)
                     {
                         if (token.IsCancellationRequested)
                         {
                             return;
                         }
 
-                        foreach (var itemId in config.DropItemIds)
+                        try
                         {
                             await TryDropItem(token, config.GameId, itemId);
-                            await Task.Delay(1_000, token);
+                            await Task.Delay(3_000, token);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error(e, "Error while DropTask");
                         }
                     }
                 }
-            }
-            catch
-            {
-                //
             }
         }
 
@@ -254,6 +254,7 @@ namespace SteamDroplerApi.Worker.Logic
                 {
                     Log.Logger.Error(e, "Error while sending CInventory_ConsumePlaytime_Request");
                     await Task.Delay(5_000, token);
+                    Log.Logger.Information("try again");
                 }
             } while (!executed);
         }
