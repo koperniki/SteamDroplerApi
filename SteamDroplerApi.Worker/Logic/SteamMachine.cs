@@ -26,9 +26,11 @@ namespace SteamDroplerApi.Worker.Logic
         public SteamMachine(AccountTracker accountTracker, int serverRecordMod, MainConfig mainConfig)
         {
             _client = new SteamClient();
+
             var records = (SteamDirectory.LoadAsync(_client.Configuration).Result)
                 .Where(t => t.ProtocolTypes.HasFlag(ProtocolTypes.Tcp))
-                .OrderBy(t => t.EndPoint).ToList();
+                .OrderBy(t => t.EndPoint.GetHashCode()).ToList();
+
             var recordIndex = (records.Count - 1) % serverRecordMod;
             var manager = new CallbackManager(_client);
             var steamUnifiedMessages = _client.GetHandler<SteamUnifiedMessages>()!;
