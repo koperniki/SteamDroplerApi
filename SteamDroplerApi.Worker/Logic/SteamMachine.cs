@@ -223,7 +223,7 @@ namespace SteamDroplerApi.Worker.Logic
                         try
                         {
                             await TryDropItem(token, config.GameId, itemId);
-                            await Task.Delay(5_000, token);
+                            await Task.Delay(_mainConfig.IdDropCooldown * 1000, token);
                         }
                         catch (Exception e)
                         {
@@ -260,7 +260,6 @@ namespace SteamDroplerApi.Worker.Logic
                     if (response.Result == EResult.Fail && !string.IsNullOrEmpty(response.ErrorMessage) && response.ErrorMessage == "User must be allowed to play game to access inventory.")
                     {
                         Log.Logger.Information("response result {resp} {result}", response.Result, response.ErrorMessage);
-                        await Task.Delay(5_000, token);
                         _skipGames.Add(gameId);
                     }
                         
@@ -279,8 +278,8 @@ namespace SteamDroplerApi.Worker.Logic
                         return;
                     }
                     Log.Logger.Error(e, "Error while sending CInventory_ConsumePlaytime_Request");
-                    Log.Logger.Information("try again after wait 1 min");
-                    await Task.Delay(61_000, token);
+                    Log.Logger.Information($"try again after wait {_mainConfig.IdDropErrorCooldown} sec");
+                    await Task.Delay(_mainConfig.IdDropErrorCooldown * 1000, token);
                     
                 }
             } while (!executed);

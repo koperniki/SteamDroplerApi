@@ -7,4 +7,6 @@ public class MainConfig
     public int CoolDownAfterLoginError { get; set; } = 120;
     public List<DropConfig> DropConfig { get; set; } = new();
     public bool LogWorker { get; set; } = false;
+    public int IdDropCooldown { get; set; } = 5;
+    public int IdDropErrorCooldown { get; set; } = 60;
 }
