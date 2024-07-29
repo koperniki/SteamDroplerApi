@@ -54,8 +54,8 @@ public class AccountWorkerProxy(Account account, MainConfig mainConfig)
             ? "SteamDroplerApi.Worker"
             : "SteamDroplerApi.Worker.exe";
         startInfo.Arguments = ProxyId;
-        startInfo.RedirectStandardOutput = true;
-        startInfo.RedirectStandardError = true;
+        startInfo.RedirectStandardOutput = false;
+        startInfo.RedirectStandardError = false;
         startInfo.UseShellExecute = false;
         startInfo.CreateNoWindow = true;
 

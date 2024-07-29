@@ -27,6 +27,12 @@ namespace SteamDroplerApi.Worker.Logic
         public SteamMachine(AccountTracker accountTracker, int serverRecordMod, MainConfig mainConfig)
         {
             _client = new SteamClient();
+            /*var folder = $"D:\\logs\\{accountTracker.Account.Name}_{DateTime.Now.ToFileTime()}";
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+            _client.DebugNetworkListener = new NetHookNetworkListener(folder);*/
             var records = (SteamDirectory.LoadAsync(_client.Configuration).Result)
                 .Where(t => t.ProtocolTypes.HasFlag(ProtocolTypes.Tcp))
                 .OrderBy(t => t.EndPoint.GetHashCode()).ToList();
@@ -268,9 +274,13 @@ namespace SteamDroplerApi.Worker.Logic
                 }
                 catch (Exception e)
                 {
+                    if (token.IsCancellationRequested)
+                    {
+                        return;
+                    }
                     Log.Logger.Error(e, "Error while sending CInventory_ConsumePlaytime_Request");
-                    Log.Logger.Information("try again after wait 30 sec");
-                    await Task.Delay(30_000, token);
+                    Log.Logger.Information("try again after wait 1 min");
+                    await Task.Delay(61_000, token);
                     
                 }
             } while (!executed);

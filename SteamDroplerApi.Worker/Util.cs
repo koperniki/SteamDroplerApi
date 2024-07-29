@@ -4,7 +4,7 @@ namespace SteamDroplerApi.Worker
 {
 	public static class Util
 	{
-		private const byte TimeoutForLongRunningTasksInSeconds = 60;
+		private const byte TimeoutForLongRunningTasksInSeconds = 10;
 		public static long GetSystemUnixTime()
 		{
 			return (long)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
