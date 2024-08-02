@@ -70,6 +70,7 @@ public class AccountDomainWorkerProxy(Account account, MainConfig mainConfig)
       
         _cancellationTokenSource = new CancellationTokenSource();
         Context = new AssemblyLoadContext(name: ProxyId, isCollectible: true);
+        Context.LoadFromAssemblyPath(Path.Combine(ExecutablePath, "Serilog.dll"));
         var assembly = Context.LoadFromAssemblyPath(Path.Combine(ExecutablePath, "SteamDroplerApi.Worker.dll"));
         var type = assembly.GetType("SteamDroplerApi.Worker.Client")!;
         var methodInfo = type.GetMethod("Run" , BindingFlags.Static | BindingFlags.Public)!;

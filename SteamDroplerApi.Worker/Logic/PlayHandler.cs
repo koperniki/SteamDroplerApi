@@ -25,6 +25,7 @@ public class PlayHandler
         var appIds = _mainConfig.DropConfig.Select(t => t.GameId).Distinct().ToList();
         Log.Logger.Information("Possible games [{games}]", appIds);
         var queueList = new Queue<uint>(appIds);
+        await _accountTracker.Plays();
         while (!token.IsCancellationRequested)
         {
             await PlayGames(queueList.ToList());
@@ -35,11 +36,9 @@ public class PlayHandler
         }
     }
     
-    private async Task PlayGames(List<uint> gamesIds)
+    private Task PlayGames(List<uint> gamesIds)
     {
-        await _accountTracker.Plays();
         var games = new ClientMsgProtobuf<CMsgClientGamesPlayed>(EMsg.ClientGamesPlayed);
-
         foreach (var gameId in gamesIds)
         {
             if (_skipGames.Contains(gameId))
@@ -55,6 +54,7 @@ public class PlayHandler
 
         _client.Send(games);
         Log.Logger.Information("Sent CMsgClientGamesPlayed");
+        return Task.CompletedTask;
     }
     
     public void StopGame()
