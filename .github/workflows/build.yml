@@ -28,13 +28,13 @@ jobs:
       run:  dotnet build ./SteamDroplerApi.Worker/SteamDroplerApi.Worker.csproj --configuration Release --runtime linux-x64 --no-restore --self-contained
 
     - name: Publish linux worker application
-      run: dotnet publish ./SteamDroplerApi.Worker/SteamDroplerApi.Worker.csproj /p:DebugType=None /p:DebugSymbols=false -c Release -r linux-x64 --no-build --no-restore -p:PublishSingleFile=true -o ./dropler-unix
+      run: dotnet publish ./SteamDroplerApi.Worker/SteamDroplerApi.Worker.csproj /p:DebugType=None /p:DebugSymbols=false -c Release -r linux-x64 --no-build --no-restore -p:PublishSingleFile=false -o ./dropler-unix
     
     - name: Build win worker application
       run:  dotnet build ./SteamDroplerApi.Worker/SteamDroplerApi.Worker.csproj --configuration Release --runtime win-x64 --no-restore --self-contained
 
     - name: Publish win worker application
-      run: dotnet publish ./SteamDroplerApi.Worker/SteamDroplerApi.Worker.csproj /p:DebugType=None /p:DebugSymbols=false -c Release -r win-x64 --no-build --no-restore -p:PublishSingleFile=true -o ./dropler-win
+      run: dotnet publish ./SteamDroplerApi.Worker/SteamDroplerApi.Worker.csproj /p:DebugType=None /p:DebugSymbols=false -c Release -r win-x64 --no-build --no-restore -p:PublishSingleFile=false -o ./dropler-win
 
     - name: Restore api dependencies
       run: dotnet restore ./SteamDroplerApi/SteamDroplerApi.csproj
@@ -49,7 +49,7 @@ jobs:
       run:  dotnet build ./SteamDroplerApi/SteamDroplerApi.csproj --configuration Release --runtime win-x64 --no-restore --self-contained
 
     - name: Publish win api application
-      run: dotnet publish ./SteamDroplerApi/SteamDroplerApi.csproj /p:DebugType=None /p:DebugSymbols=false -c Release -r win-x64  --no-build --no-restore -p:PublishSingleFile=true -o ./dropler-win
+      run: dotnet publish ./SteamDroplerApi/SteamDroplerApi.csproj /p:DebugType=None /p:DebugSymbols=false -c Release -r win-x64  --no-build --no-restore -p:PublishSingleFile= -o ./dropler-win
 
     - name: Upload artifacts unix
       uses: actions/upload-artifact@v3
