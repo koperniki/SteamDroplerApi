@@ -10,7 +10,7 @@ public class WorkerService
     private readonly CancellationTokenSource _cts = new();
     private Task? _task;
     private MainConfig? _mainConfig;
-    private readonly ConcurrentDictionary<string, AccountWorkerProxy> _dict = new();
+    private readonly ConcurrentDictionary<string, AccountDomainWorkerProxy> _dict = new();
     private readonly ILogger<WorkerService> _logger;
     private readonly AccountConfigService _accountConfigService;
     private readonly MainConfigService _mainConfigService;
@@ -39,6 +39,7 @@ public class WorkerService
 
     public async Task StopAsync()
     {
+        _logger.LogInformation("Worker try to stop");
         await _cts.CancelAsync();
         if (_task != null)
         {
@@ -73,25 +74,34 @@ public class WorkerService
 
         foreach (var account in accounts)
         {
-            var proxy = new AccountWorkerProxy(account, _mainConfig!);
+            var proxy = new AccountDomainWorkerProxy(account, _mainConfig!);
             _dict[proxy.ProxyId] = proxy;
         }
 
         _logger.LogInformation("Will be idling [{count}] accounts", _dict.Count);
 
-        while (!token.IsCancellationRequested)
+        try
         {
-            foreach (var pair in _dict)
+            while (!token.IsCancellationRequested)
             {
-                await pair.Value.Do(token);
-            }
+                foreach (var pair in _dict)
+                {
+                    await pair.Value.Do(token);
+                }
 
-            await Task.Delay(1_000, token);
+                await Task.Delay(1_000, token);
+            }
         }
-        _logger.LogWarning("Start exiting");
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+        
+        _logger.LogInformation("Start exiting");
         foreach (var pair in _dict)
         {
             await pair.Value.Kill();
+            _logger.LogInformation("Stopped {account}", pair.Value.Account.Name);
         }
         
     }

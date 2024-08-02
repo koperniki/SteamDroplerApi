@@ -74,9 +74,6 @@ public class AccountTracker(Account account, HubConnection connection)
         catch (Exception e)
         {
             Log.Logger.Error(e, "Error while notify host");
-            Console.WriteLine(e);
         }
     }
-
-    
 }

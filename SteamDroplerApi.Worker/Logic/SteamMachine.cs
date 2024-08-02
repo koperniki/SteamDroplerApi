@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Serilog;
+﻿using Serilog;
 using SteamDroplerApi.Core.Configs;
 using SteamKit2;
 using SteamKit2.Discovery;
@@ -18,7 +17,6 @@ namespace SteamDroplerApi.Worker.Logic
         private readonly SteamUnifiedMessages.UnifiedService<IInventory> _inventoryService;
         private readonly SteamUnifiedMessages.UnifiedService<IPlayer> _playerService;
         private bool _work = true;
-        private readonly CancellationTokenSource _tokenSource;
         private Task? _task;
         private SteamWebHandler? _steamWebHandler;
         private readonly List<uint> _skipGames;
@@ -47,7 +45,6 @@ namespace SteamDroplerApi.Worker.Logic
             _accountTracker = accountTracker;
             _mainConfig = mainConfig;
             _loginHandler = new SteamLoginHandler(accountTracker, _client, manager, _serverRecord);
-            _tokenSource = new CancellationTokenSource();
             _skipGames = new List<uint>();
             Task.Run(() =>
             {
@@ -59,16 +56,15 @@ namespace SteamDroplerApi.Worker.Logic
         }
 
 
-        public void Start()
+        public void Start(CancellationToken token)
         {
-            _task = EasyIdling(_tokenSource.Token);
+            _task = EasyIdling(token);
         }
 
         public async Task StopAsync()
         {
             if (_task != null)
             {
-                await _tokenSource.CancelAsync();
                 await _task;
             }
 
@@ -116,40 +112,11 @@ namespace SteamDroplerApi.Worker.Logic
             }
         }
 
-        /* public async Task<List<uint>?> GetOwnedGames()
-         {
-             return null;
-             var request = new CPlayer_GetOwnedGames_Request()
-             {
-                 steamid = _client.SteamID!,
-                 include_appinfo = false,
-                 include_free_sub = true,
-                 include_played_free_games = true,
-                 skip_unvetted_apps = false,
-             };
-             try
-             {
-                 var response = await _playerService.SendMessage(x => x.GetOwnedGames(request)).ToLongRunningTask();
-
-                 var body = response.GetDeserializedResponse<CPlayer_GetOwnedGames_Response>();
-                 var appIds = body.games.Select(t => (uint)t.appid).ToList();
-                 await _accountTracker.UpdateOwnedApps(appIds);
-                 Log.Logger.Information("Got CPlayer_GetOwnedGames_Response");
-                 return appIds;
-             }
-             catch (Exception e)
-             {
-                 Log.Logger.Error(e, "Error while getting CPlayer_GetOwnedGames_Response");
-                 return null;
-             }
-         }*/
-
         private async Task LogOf()
         {
             _work = false;
             _client.Disconnect();
         }
-
 
         public async Task AddFreeLicenseApp(List<uint> gamesIds)
         {
@@ -209,12 +176,14 @@ namespace SteamDroplerApi.Worker.Logic
                     {
                         continue;
                     }
+
                     foreach (var itemId in config.DropItemIds)
                     {
                         if (_skipGames.Contains(config.GameId))
                         {
                             break;
                         }
+
                         if (token.IsCancellationRequested)
                         {
                             return;
@@ -255,14 +224,16 @@ namespace SteamDroplerApi.Worker.Logic
                 {
                     var response = await _inventoryService.SendMessage(x => x.ConsumePlaytime(reqkf))
                         .ToLongRunningTask();
-                   
+
                     var result = response.GetDeserializedResponse<CInventory_Response>();
-                    if (response.Result == EResult.Fail && !string.IsNullOrEmpty(response.ErrorMessage) && response.ErrorMessage == "User must be allowed to play game to access inventory.")
+                    if (response.Result == EResult.Fail && !string.IsNullOrEmpty(response.ErrorMessage) &&
+                        response.ErrorMessage == "User must be allowed to play game to access inventory.")
                     {
-                        Log.Logger.Information("response result {resp} {result}", response.Result, response.ErrorMessage);
+                        Log.Logger.Information("response result {resp} {result}", response.Result,
+                            response.ErrorMessage);
                         _skipGames.Add(gameId);
                     }
-                        
+
                     if (result.item_json != "[]")
                     {
                         Log.Logger.Information("ItemDropped: {result}", result.item_json);
@@ -277,51 +248,14 @@ namespace SteamDroplerApi.Worker.Logic
                     {
                         return;
                     }
+
                     Log.Logger.Error(e, "Error while sending CInventory_ConsumePlaytime_Request");
                     Log.Logger.Information($"try again after wait {_mainConfig.IdDropErrorCooldown} sec");
                     await Task.Delay(_mainConfig.IdDropErrorCooldown * 1000, token);
-                    
                 }
             } while (!executed);
         }
 
-        /* private async Task CheckTimeItemsList(List<DropConfig> configs, List<uint> possibleGames)
-         {
-             Console.WriteLine("TryDrop: " + DateTime.Now.ToShortTimeString());
-
-             foreach (var config in configs)
-             {
-                 if (!possibleGames.Contains(config.GameId))
-                 {
-                     continue;
-                 }
-
-                 foreach (var itemId in config.DropItemIds)
-                 {
-                     var reqkf = new CInventory_ConsumePlaytime_Request
-                     {
-                         appid = config.GameId,
-                         itemdefid = itemId
-                     };
-                     Log.Logger.Information("Sent CInventory_ConsumePlaytime_Request: gameId: {gameId} itemId: {itemId}", config.GameId, itemId);
-                     try
-                     {
-                         var response = await _inventoryService.SendMessage(x => x.ConsumePlaytime(reqkf))
-                             .ToLongRunningTask();
-                         var result = response.GetDeserializedResponse<CInventory_Response>();
-                         if (result.item_json != "[]")
-                         {
-                             Log.Logger.Information("ItemDropped: {result}", result.item_json);
-                             await _accountTracker.ItemDropped(result.item_json);
-                         }
-                     }
-                     catch (Exception e)
-                     {
-                         Log.Logger.Error(e, "Error while sending CInventory_ConsumePlaytime_Request");
-                     }
-                 }
-             }
-         }*/
 
         private void StopGame()
         {
@@ -344,6 +278,7 @@ namespace SteamDroplerApi.Worker.Logic
                 {
                     continue;
                 }
+
                 games.Body.games_played.Add(new CMsgClientGamesPlayed.GamePlayed
                 {
                     game_id = new GameID(gameId),
