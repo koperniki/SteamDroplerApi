@@ -1,10 +1,13 @@
 {
   "StartTimeOut": 30,
   "CoolDownAfterLoginError": 120,
-  "IdDropCooldown":  5, //5 sec
-  "IdDropErrorCooldown" : 60,//60 sec
+  "IdDropCooldown":  0, //5 sec
+  "IdDropErrorCooldown" : 0,//60 sec,
+  "CheckItemDropCooldown": 30, //min,
+  "LogWorker": false,
   "DropConfig" : [{
+    "CheckItemDropCooldown": 60, //min or null,
     "GameId":232090,
-    "DropItemIds": [910000]
+    "DropItemIds": [910000, 900000]
   }]
 }
