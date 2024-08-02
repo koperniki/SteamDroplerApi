@@ -20,6 +20,7 @@ public class AccountDomainWorkerProxy(Account account, MainConfig mainConfig)
     private CancellationTokenSource? _cancellationTokenSource;
     private Task? _workerTask;
     private static readonly string ExecutablePath;
+    private static readonly string[] UniqueAssembliesNames;
 
     static AccountDomainWorkerProxy()
     {
@@ -30,6 +31,13 @@ public class AccountDomainWorkerProxy(Account account, MainConfig mainConfig)
             "Microsoft.AspNetCore.SignalR.Client.Core.dll"));
         AssemblyLoadContext.Default.LoadFromAssemblyPath(Path.Combine(ExecutablePath,
             "Microsoft.AspNetCore.Http.Connections.Client.dll"));
+
+        UniqueAssembliesNames =
+        [
+            "Serilog.dll", "Serilog.Extensions.Hosting.dll", "Serilog.Extensions.Logging.dll",
+            "Serilog.Settings.Configuration.dll", "Serilog.Sinks.Console.dll", "Serilog.Sinks.Console.dll",
+            "Serilog.Sinks.Debug.dll", "Serilog.Sinks.File.dll"
+        ];
     }
     
     public Task Do(CancellationToken token)
@@ -70,13 +78,16 @@ public class AccountDomainWorkerProxy(Account account, MainConfig mainConfig)
       
         _cancellationTokenSource = new CancellationTokenSource();
         Context = new AssemblyLoadContext(name: ProxyId, isCollectible: true);
-        Context.LoadFromAssemblyPath(Path.Combine(ExecutablePath, "Serilog.dll"));
+
+        foreach (var assemblyName in UniqueAssembliesNames)
+        {
+            Context.LoadFromAssemblyPath(Path.Combine(ExecutablePath, assemblyName));
+        }
+
         var assembly = Context.LoadFromAssemblyPath(Path.Combine(ExecutablePath, "SteamDroplerApi.Worker.dll"));
         var type = assembly.GetType("SteamDroplerApi.Worker.Client")!;
         var methodInfo = type.GetMethod("Run" , BindingFlags.Static | BindingFlags.Public)!;
-
         _workerTask = (Task)methodInfo.Invoke(null, new object[] { ProxyId, _cancellationTokenSource })!;
-        
     }
 
     public void WorkerConnected(string connectionId)
