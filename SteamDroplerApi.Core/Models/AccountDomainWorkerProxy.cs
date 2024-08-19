@@ -24,7 +24,13 @@ public class AccountDomainWorkerProxy(Account account, MainConfig mainConfig)
 
     static AccountDomainWorkerProxy()
     {
+#if DEBUG
+        ExecutablePath = "E:\\source\\SteamDroplerApi\\SteamDroplerApi.Worker\\bin\\Debug\\net8.0\\win-x64";
+        #else
+
         ExecutablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+
+#endif
         AssemblyLoadContext.Default.LoadFromAssemblyPath(Path.Combine(ExecutablePath,
             "Microsoft.AspNetCore.SignalR.Client.dll"));
         AssemblyLoadContext.Default.LoadFromAssemblyPath(Path.Combine(ExecutablePath,
@@ -34,9 +40,7 @@ public class AccountDomainWorkerProxy(Account account, MainConfig mainConfig)
 
         UniqueAssembliesNames =
         [
-            "Serilog.dll", "Serilog.Extensions.Hosting.dll", "Serilog.Extensions.Logging.dll",
-            "Serilog.Settings.Configuration.dll", "Serilog.Sinks.Console.dll", "Serilog.Sinks.Console.dll",
-            "Serilog.Sinks.Debug.dll", "Serilog.Sinks.File.dll"
+            "Serilog.dll", "Serilog.Sinks.Console.dll", "Serilog.Sinks.Console.dll", "Serilog.Sinks.File.dll"
         ];
     }
     

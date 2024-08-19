@@ -7,7 +7,7 @@ namespace SteamDroplerApi.Core.Services;
 public class MainConfigService
 {
     public static readonly Version ActualVersion =  new Version(0, 2);
-    private static readonly string ConfigPath = Path.Combine("Configs", "MainConfig.json");
+    private static readonly string ConfigPath = Path.Combine("E:\\self\\publish\\Configs", "MainConfig.json");
     
     private readonly ILogger<MainConfigService> _logger;
     private readonly AppSystemService _systemService;

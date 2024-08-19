@@ -24,6 +24,50 @@ public class DropHandler
         _times = new Dictionary<uint, DateTime>();
     }
 
+    public async Task DetectingDroppableGames(CancellationToken token)
+    {
+        if (_accountTracker.Account.RunConfig.ForceCheckOwnedApps == false)
+        {
+            _skipGames.UnionWith(_accountTracker.Account.RunConfig.NotOwnedApps);
+            return;
+        }
+
+        await _accountTracker.GetOwnedGames();
+
+        var gamesToCheck = _mainConfig
+            .DropConfig
+            .GroupBy(t => t.GameId)
+            .Select(t => new
+            {
+                GameId = t.Key,
+                ItemDefId = t.SelectMany(x => x.DropItemIds).First(),
+            }).Where(x => !_accountTracker.Account.RunConfig.OwnedApps.Contains(x.GameId)).ToList();
+
+        foreach (var pair in gamesToCheck)
+        {
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }
+            try
+            {
+                await TryDropItem(token, pair.GameId, pair.ItemDefId);
+                await Task.Delay(100);
+            }
+            catch
+            {
+                //
+            }
+        }
+
+        var gamesInConfig = _mainConfig.DropConfig.Select(t => t.GameId).Distinct().ToList();
+        var notOwned = _skipGames.ToList();
+        var owned = gamesInConfig.Except(notOwned).Union(_accountTracker.Account.RunConfig.OwnedApps).ToList();
+
+        await _accountTracker.UpdateOwnedApps(owned, notOwned);
+    }
+
+
     public async Task DropTask(CancellationToken token)
     {
         while (!token.IsCancellationRequested)
@@ -115,8 +159,7 @@ public class DropHandler
                 gameId, itemId);
             try
             {
-                var response = await _inventoryService.SendMessage(x => x.ConsumePlaytime(reqkf))
-                    .ToLongRunningTask();
+                var response = await _inventoryService.SendMessage(x => x.ConsumePlaytime(reqkf));
 
                 var result = response.GetDeserializedResponse<CInventory_Response>();
                 if (response.Result == EResult.Fail && !string.IsNullOrEmpty(response.ErrorMessage) &&

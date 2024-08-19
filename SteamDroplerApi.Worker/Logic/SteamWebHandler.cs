@@ -13,16 +13,19 @@ public class SteamWebHandler
     private static Uri SteamHelpUrl => new("https://help.steampowered.com");
     private static Uri SteamStoreUrl => new("https://store.steampowered.com");
     private readonly SteamClient _steamClient;
-    private readonly string _webApiUserNonce;
+    private string? _webApiUserNonce;
     private CookieContainer _cookieContainer;
 
-    public SteamWebHandler(SteamClient steamClient, string webApiUserNonce)
+    public SteamWebHandler(SteamClient steamClient)
     {
         _steamClient = steamClient;
-        _webApiUserNonce = webApiUserNonce;
         _cookieContainer = new CookieContainer();
     }
 
+    public void SetNonce(string webApiUserNonce)
+    {
+        _webApiUserNonce = webApiUserNonce;
+    }
 
     public async Task<bool> TryAddFreeLicensePackage(uint packageId)
     {

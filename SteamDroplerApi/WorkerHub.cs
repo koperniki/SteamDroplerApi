@@ -101,6 +101,35 @@ public class WorkerHub(
         }
     }
     
+    public async Task GetOwnedGames()
+    {
+        var account = await GetAccount();
+        if (account != null)
+        {
+            logger.LogInformation("Account {account}: start check owned games...", account.Name);
+
+        }
+    }
+
+    public async Task UpdateOwnedApps(List<uint> owned, List<uint> notOwned)
+    {
+        var account = await GetAccount();
+        if (account != null)
+        {
+            var idsToDrop = mainConfigService.MainConfig!.DropConfig.Select(t => t.GameId).Distinct().ToList();
+            var willDrop = idsToDrop.Intersect(owned).ToList();
+            var skipDrop = idsToDrop.Intersect(notOwned).ToList();
+            
+            logger.LogInformation("Account {account}: will be drop {willDrop}", account.Name, willDrop);
+            logger.LogWarning("Account {account}: skip drop {skipDrop}", account.Name, skipDrop);
+            account.RunConfig.OwnedApps = owned;
+            account.RunConfig.NotOwnedApps = notOwned;
+            account.RunConfig.ForceCheckOwnedApps = false;
+            await accountConfigService.SaveRunAccountConfig(account);
+
+        }
+    }
+    
     public async Task Save(Account newAccountData)
     {
         var account = await GetAccount();
@@ -115,16 +144,6 @@ public class WorkerHub(
             account.RunConfig.ErrorReason = newAccountData.RunConfig.ErrorReason;
             account.RunConfig.PackagesToAdd = newAccountData.RunConfig.PackagesToAdd;
             account.RunConfig.AppsToAdd = newAccountData.RunConfig.AppsToAdd;
-            
-            var appDiffs = account.RunConfig.OwnedApps.Any()
-                ? account.RunConfig.OwnedApps.Except(newAccountData.RunConfig.OwnedApps).ToList()
-                : new List<uint>();
-            if (appDiffs.Any())
-            {
-                logger.LogInformation("Account {account} has new apps: [{apps}]", account.Name,
-                    string.Join(";", appDiffs));
-            }
-            account.RunConfig.OwnedApps = newAccountData.RunConfig.OwnedApps;
             
             await accountConfigService.SaveRunAccountConfig(account);
         }

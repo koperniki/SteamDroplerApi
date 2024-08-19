@@ -7,7 +7,7 @@ namespace SteamDroplerApi.Core.Services;
 
 public class AccountConfigService
 {
-    private static readonly string AccountConfigPath = Path.Combine("Configs", "Accounts");
+    private static readonly string AccountConfigPath = Path.Combine("E:\\self\\publish\\Configs", "Accounts");
     private static readonly string AccountRunConfigPath = Path.Combine(AccountConfigPath, "Run");
     private readonly ILogger<AccountConfigService> _logger;
     private readonly AppSystemService _systemService;

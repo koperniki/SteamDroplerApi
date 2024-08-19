@@ -1,0 +1,255 @@
+{
+  "RefreshApps": false,
+  "Apps": {
+    "232090": {
+      "AppId": 232090,
+      "IsFree": false,
+      "Name": "Killing Floor 2"
+    },
+    "1949740": {
+      "AppId": 1949740,
+      "IsFree": true,
+      "Name": "Banana Shooter"
+    },
+    "1209140": {
+      "AppId": 1209140,
+      "IsFree": false,
+      "Name": "Peace Data"
+    },
+    "1782210": {
+      "AppId": 1782210,
+      "IsFree": true,
+      "Name": "Crab Game"
+    },
+    "914260": {
+      "AppId": 914260,
+      "IsFree": false,
+      "Name": "HALF DEAD 2"
+    },
+    "1520380": {
+      "AppId": 1520380,
+      "IsFree": false,
+      "Name": "HALF DEAD 3"
+    },
+    "302670": {
+      "AppId": 302670,
+      "IsFree": false,
+      "Name": "Call to Arms"
+    },
+    "519870": {
+      "AppId": 519870,
+      "IsFree": false,
+      "Name": "Flying Pengy"
+    },
+    "1070330": {
+      "AppId": 1070330,
+      "IsFree": false,
+      "Name": "Russian Life Simulator"
+    },
+    "269210": {
+      "AppId": 269210,
+      "IsFree": false,
+      "Name": "Hero Siege"
+    },
+    "614910": {
+      "AppId": 614910,
+      "IsFree": false,
+      "Name": "#monstercakes"
+    },
+    "771950": {
+      "AppId": 771950,
+      "IsFree": false,
+      "Name": "SUMETRICK"
+    },
+    "3073460": {
+      "AppId": 3073460,
+      "IsFree": true,
+      "Name": "Broccoli"
+    },
+    "3085950": {
+      "AppId": 3085950,
+      "IsFree": true,
+      "Name": "Banana-Shaped"
+    },
+    "2794860": {
+      "AppId": 2794860,
+      "IsFree": false,
+      "Name": "Grow a Carrot"
+    },
+    "3069470": {
+      "AppId": 3069470,
+      "IsFree": false,
+      "Name": "Dollar"
+    },
+    "3092750": {
+      "AppId": 3092750,
+      "IsFree": true,
+      "Name": "Aurye Clicker"
+    },
+    "3075350": {
+      "AppId": 3075350,
+      "IsFree": true,
+      "Name": "Pickle"
+    },
+    "3064010": {
+      "AppId": 3064010,
+      "IsFree": true,
+      "Name": "Pickle"
+    },
+    "3064270": {
+      "AppId": 3064270,
+      "IsFree": true,
+      "Name": "Letters"
+    },
+    "3083470": {
+      "AppId": 3083470,
+      "IsFree": false,
+      "Name": "Frog"
+    },
+    "2987860": {
+      "AppId": 2987860,
+      "IsFree": true,
+      "Name": "Rock the Islands"
+    },
+    "3056060": {
+      "AppId": 3056060,
+      "IsFree": true,
+      "Name": "Cheese Collector"
+    },
+    "3069530": {
+      "AppId": 3069530,
+      "IsFree": true,
+      "Name": "Oh, honey! Anime clicker!"
+    },
+    "3062030": {
+      "AppId": 3062030,
+      "IsFree": true,
+      "Name": "Idle Kitties Online"
+    },
+    "2782530": {
+      "AppId": 2782530,
+      "IsFree": true,
+      "Name": "Shrimp.io"
+    },
+    "3058030": {
+      "AppId": 3058030,
+      "IsFree": true,
+      "Name": "WEEB"
+    },
+    "2977660": {
+      "AppId": 2977660,
+      "IsFree": true,
+      "Name": "Cats"
+    },
+    "2923300": {
+      "AppId": 2923300,
+      "IsFree": true,
+      "Name": "Banana"
+    },
+    "2845270": {
+      "AppId": 2845270,
+      "IsFree": true,
+      "Name": "100 Aliens Cats"
+    },
+    "2667970": {
+      "AppId": 2667970,
+      "IsFree": true,
+      "Name": "100 Asian Cats"
+    },
+    "2845250": {
+      "AppId": 2845250,
+      "IsFree": true,
+      "Name": "100 Istanbul Cats"
+    },
+    "2854290": {
+      "AppId": 2854290,
+      "IsFree": true,
+      "Name": "100 Space Cats"
+    },
+    "3067770": {
+      "AppId": 3067770,
+      "IsFree": true,
+      "Name": "BUTT"
+    },
+    "3070500": {
+      "AppId": 3070500,
+      "IsFree": true,
+      "Name": "Coin"
+    },
+    "3056370": {
+      "AppId": 3056370,
+      "IsFree": true,
+      "Name": "Honey Peach Clicker"
+    },
+    "3070890": {
+      "AppId": 3070890,
+      "IsFree": true,
+      "Name": "Clothing"
+    },
+    "3057850": {
+      "AppId": 3057850,
+      "IsFree": true,
+      "Name": "Milk"
+    },
+    "3083270": {
+      "AppId": 3083270,
+      "IsFree": true,
+      "Name": "Dogs"
+    },
+    "3062580": {
+      "AppId": 3062580,
+      "IsFree": true,
+      "Name": "Avocado"
+    },
+    "2408310": {
+      "AppId": 2408310,
+      "IsFree": true,
+      "Name": "Cat"
+    },
+    "2376170": {
+      "AppId": 2376170,
+      "IsFree": true,
+      "Name": "Hamster Combat"
+    },
+    "3058700": {
+      "AppId": 3058700,
+      "IsFree": true,
+      "Name": "Banana Cat"
+    },
+    "3076520": {
+      "AppId": 3076520,
+      "IsFree": true,
+      "Name": "Dog"
+    },
+    "3055420": {
+      "AppId": 3055420,
+      "IsFree": true,
+      "Name": "Fruit: Chain Effect"
+    },
+    "3059750": {
+      "AppId": 3059750,
+      "IsFree": true,
+      "Name": "Cock"
+    },
+    "3074340": {
+      "AppId": 3074340,
+      "IsFree": true,
+      "Name": "VHS"
+    },
+    "3067650": {
+      "AppId": 3067650,
+      "IsFree": true,
+      "Name": "Tiny Dino: Royale"
+    },
+    "3064950": {
+      "AppId": 3064950,
+      "IsFree": true,
+      "Name": "Crazy Corn"
+    },
+    "894060": {
+      "AppId": 894060,
+      "IsFree": true,
+      "Name": "Watch"
+    }
+  }
+}

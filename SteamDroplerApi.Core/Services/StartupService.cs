@@ -7,17 +7,19 @@ public class StartupService : IHostedService
     private readonly ILogger<StartupService> _logger;
     private readonly MainConfigService _mainConfigService;
     private readonly AccountConfigService _accountConfigService;
+    private readonly SteamDescriptionService _descriptionService;
     private readonly GoogleSheetsService _googleSheetsService;
     private readonly WorkerService _workerService;
 
 
     public StartupService(ILogger<StartupService> logger, MainConfigService mainConfigService,
-        AccountConfigService accountConfigService,
+        AccountConfigService accountConfigService, SteamDescriptionService descriptionService,
         GoogleSheetsService googleSheetsService, WorkerService workerService)
     {
         _logger = logger;
         _mainConfigService = mainConfigService;
         _accountConfigService = accountConfigService;
+        _descriptionService = descriptionService;
         _googleSheetsService = googleSheetsService;
         _workerService = workerService;
     }
@@ -30,6 +32,7 @@ public class StartupService : IHostedService
         
         await _mainConfigService.ReadMainConfig();
         await _accountConfigService.ReadAccounts();
+        await _descriptionService.StartAsync();
         //await _googleSheetsService.StartAsync();
         await _workerService.StartAsync();
     }

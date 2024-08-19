@@ -1,0 +1,22 @@
+<dx-data-grid [dataSource]="dataSource | async">
+
+    <dxo-editing [allowUpdating]="false" [allowAdding]="false" [allowDeleting]="false"> </dxo-editing>
+    <dxi-column caption="Name" dataField="name" cellTemplate="referenceCellTemplate">
+        <div *dxTemplate="let cellInfo of 'referenceCellTemplate'">
+            <a [routerLink]="['/account', cellInfo.data.name]">{{ cellInfo.data.name }}</a>
+        </div>
+    </dxi-column>
+    <dxi-column caption="SteamId" dataField="runConfig.steamId">
+    </dxi-column>
+    <dxi-column caption="Idle Enabled" dataField="config.idleEnable">
+    </dxi-column>
+    <dxi-column caption="Running" dataField="isPlaying">
+    </dxi-column>
+    <dxi-column caption="Updated" dataField="runConfig.updateTime">
+    </dxi-column>
+
+
+
+
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+</dx-data-grid>

@@ -25,4 +25,11 @@ public class AccountController : Controller
     {
         return Task.FromResult(_accountConfigService.Accounts.ToList());
     }
+
+    [HttpGet("{accountId}")]
+    public Task<Account> GetAccount(string accountId)
+    {
+        return Task.FromResult(_accountConfigService.Accounts.First(t =>
+            t.Name.Equals(accountId, StringComparison.CurrentCultureIgnoreCase)));
+    }
 }

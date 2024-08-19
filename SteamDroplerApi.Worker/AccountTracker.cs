@@ -48,17 +48,25 @@ public class AccountTracker(Account account, HubConnection connection)
     {
         await SafeExecute(async () => await connection.InvokeAsync("ItemDropped", resultItemJson));
     }
-
-    public async Task UpdateOwnedApps(List<uint> appIds)
+    
+    public async Task GetOwnedGames()
     {
-        Account.RunConfig.OwnedApps = appIds;
-        await Save();
+        await SafeExecute(async () => await connection.InvokeAsync("GetOwnedGames"));
+    }
+    
+    public async Task UpdateOwnedApps(List<uint> owned, List<uint> notOwned)
+    {
+        Account.RunConfig.OwnedApps = owned;
+        Account.RunConfig.NotOwnedApps = notOwned;
+        await SafeExecute(async () => await connection.InvokeAsync("UpdateOwnedApps", owned, notOwned));
     }
 
     public async Task Disconnected()
     {
         await SafeExecute(async () => await connection.InvokeAsync("Disconnected", Account));
     }
+    
+   
 
     private async Task Save()
     {

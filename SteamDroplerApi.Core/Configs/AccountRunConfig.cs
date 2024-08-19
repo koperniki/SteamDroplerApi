@@ -9,7 +9,9 @@ public class AccountRunConfig
     public DateTime? LastErrorTime { get; set; }
     public string? ErrorReason { get; set; }
     public DateTime? UpdateTime { get; set; }
+    public bool? ForceCheckOwnedApps { get; set; } = null;
     public List<uint> OwnedApps { get; set; } = new List<uint>();
+    public List<uint> NotOwnedApps { get; set; } = new List<uint>();
     public List<uint> AppsToAdd { get; set; } = new List<uint>();
     public List<uint> PackagesToAdd { get; set; } = new List<uint>();
 }

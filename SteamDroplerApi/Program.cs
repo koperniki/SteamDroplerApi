@@ -21,9 +21,18 @@ builder.Services.AddSingleton<GoogleSheetsService>();
 builder.Services.AddSingleton<AppSystemService>();
 builder.Services.AddSingleton<WorkerService>();
 builder.Services.AddSingleton<DropService>();
+builder.Services.AddSingleton<SteamDescriptionService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "AllowAll",
+        policy  =>
+        {
+            policy.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod();
+        });
+});
 
 
 var app = builder.Build();
@@ -31,6 +40,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.MapControllers();
+app.UseCors("AllowAll");
 app.MapHub<WorkerHub>("worker");
 
 try

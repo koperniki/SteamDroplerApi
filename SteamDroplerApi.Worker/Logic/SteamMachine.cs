@@ -8,16 +8,17 @@ namespace SteamDroplerApi.Worker.Logic
 {
     public class SteamMachine
     {
+        public LicenseHandler LicenseHandler { get; private set; }
         private readonly AccountTracker _accountTracker;
         private readonly ServerRecord _serverRecord;
         private readonly SteamLoginHandler _loginHandler;
         private readonly SteamClient _client;
-        private readonly SteamApps _steamApps;
+
 
         //private readonly SteamUnifiedMessages.UnifiedService<IPlayer> _playerService;
         private bool _work = true;
         private Task? _task;
-        private SteamWebHandler? _steamWebHandler;
+        private readonly SteamWebHandler _steamWebHandler;
         private readonly PlayHandler _playHandler;
         private readonly DropHandler _dropHandler;
 
@@ -39,15 +40,15 @@ namespace SteamDroplerApi.Worker.Logic
             var manager = new CallbackManager(_client);
 
             _serverRecord = records[recordIndex];
-            _steamApps = _client.GetHandler<SteamApps>()!;
 
+            _steamWebHandler = new SteamWebHandler(_client);
+            LicenseHandler = new LicenseHandler(_client, _steamWebHandler, accountTracker);
             _accountTracker = accountTracker;
             _loginHandler = new SteamLoginHandler(accountTracker, _client, manager, _serverRecord);
-            
+
             var skipGames = new HashSet<uint>();
             _playHandler = new PlayHandler(accountTracker, _client, mainConfig, skipGames);
             _dropHandler = new DropHandler(accountTracker, _client, mainConfig, skipGames);
-
 
             Task.Run(() =>
             {
@@ -80,18 +81,16 @@ namespace SteamDroplerApi.Worker.Logic
             {
                 Log.Logger.Information("Try to login");
                 var res = await _loginHandler.Login(_serverRecord);
-                _steamWebHandler = new SteamWebHandler(_client, _loginHandler.WebApiNonce!);
+                
 
                 if (res == EResult.OK)
                 {
-                    Log.Logger.Information("Try add license apps");
-                    await AddFreeLicenseApp(_accountTracker.Account.RunConfig.AppsToAdd);
-                    foreach (var packageId in _accountTracker.Account.RunConfig.PackagesToAdd)
-                    {
-                        await AddFreeLicensePackage(packageId);
-                    }
+                    _steamWebHandler.SetNonce(_loginHandler.WebApiNonce!);
+                    
+                    await LicenseHandler.InitCheck();
 
-                    await _accountTracker.ResetLicensesToAdd();
+                    await _dropHandler.DetectingDroppableGames(token);
+
 
                     var playTask = _playHandler.PlayTask(token);
                     var dropTask = _dropHandler.DropTask(token);
@@ -120,38 +119,6 @@ namespace SteamDroplerApi.Worker.Logic
             _work = false;
             _client.Disconnect();
             return Task.CompletedTask;
-        }
-
-        public async Task AddFreeLicenseApp(List<uint> gamesIds)
-        {
-            try
-            {
-                if (!gamesIds.Any())
-                {
-                    return;
-                }
-
-                await _steamApps.RequestFreeLicense(gamesIds).ToLongRunningTask();
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Error while AddFreeLicenseApp");
-            }
-        }
-
-        public async Task AddFreeLicensePackage(uint gamesId)
-        {
-            try
-            {
-                if (_steamWebHandler != null)
-                {
-                    await _steamWebHandler.TryAddFreeLicensePackage(gamesId);
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Error while AddFreeLicensePackage");
-            }
         }
     }
 }

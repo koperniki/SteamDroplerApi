@@ -45,7 +45,7 @@ public static class Client
             Log.Logger.Information("Try to add apps {ids}", ids);
             if (machine != null)
             {
-                await machine.AddFreeLicenseApp(ids);
+                await machine.LicenseHandler.AddFreeLicenseApp(ids);
             }
         });
 
@@ -54,7 +54,7 @@ public static class Client
             Log.Logger.Information("Try to add package {id}", id);
             if (machine != null)
             {
-                await machine.AddFreeLicensePackage(id);
+                await machine.LicenseHandler.AddFreeLicensePackage(id);
             }
         });
 
